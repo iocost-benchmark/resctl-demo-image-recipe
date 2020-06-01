@@ -1,0 +1,60 @@
+{{ $ospack := or .ospack "resctl-demo-ospack" }}
+{{ $image := or .image "resctl-demo-image" }}
+{{ $cmdline := or .cmdline "root=LABEL=system console=tty0 rootwait quiet fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
+
+architecture: amd64
+
+actions:
+  - action: unpack
+    file: {{ $ospack }}.tar.gz
+
+  - action: image-partition
+    imagename: {{ $image }}.img
+    imagesize: 64GB
+    partitiontype: msdos
+    mountpoints:
+      - mountpoint: /
+        partition: system
+        options:
+          - rw
+          - discard=async
+      - mountpoint: /boot
+        partition: boot
+    partitions:
+      - name: boot
+        fs: vfat
+        start: 2048s
+        end: 256M
+        flags: [ boot ]
+      - name: system
+        fs: btrfs
+        start: 256M
+        end: 100%
+
+  - action: filesystem-deploy
+    description: Deploying ospack onto image
+    append-kernel-cmdline: {{ $cmdline }}
+
+  - action: run
+    description: Install GRUB2
+    chroot: true
+    command: grub-install ${IMAGE}
+
+  - action: run
+    description: Set GRUB2 cmdline
+    command: sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="{{ $cmdline }}"/g' ${ROOTDIR}/etc/default/grub
+
+  - action: run
+    description: Update GRUB2 menu
+    chroot: true
+    command: update-grub
+
+  - action: run
+    description: Convert {{ $image }}.img to {{ $image }}.vmdk
+    postprocess: true
+    command: qemu-img convert -f raw -O vmdk -o subformat=streamOptimized {{ $image }}.img {{ $image }}.vmdk
+
+#  - action: run
+#    description: Compress {{ $image }}.img
+#    postprocess: true
+#    command: pigz -f {{ $image }}.img

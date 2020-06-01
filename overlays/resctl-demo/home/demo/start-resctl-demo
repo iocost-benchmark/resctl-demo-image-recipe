@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -x
+
+# make sure running as root
+if [ $EUID -ne 0 ] ; then
+  echo "ERROR: run this script as root" 1>&2
+  exit 1
+fi
+
+# setup swap
+SWAPFILE=/swapfile
+
+# total memory in mb
+MEMORY=$(awk '/MemTotal/ { printf "%.3f \n", $2/1024 }' /proc/meminfo)
+SWAPSIZE=${MEMORY%.*}
+echo "creating swap of ${SWAPSIZE}MiB"
+
+touch ${SWAPFILE}
+chattr +C ${SWAPFILE}
+fallocate --length ${SWAPSIZE}MiB ${SWAPFILE}
+chmod 600 ${SWAPFILE}
+mkswap ${SWAPFILE}
+swapon ${SWAPFILE}
+
+# start resctl-demo
+systemctl stop oomd.service
+systemd-run --scope --slice hostcritical.slice --unit resctl-demo /usr/bin/resctl-demo

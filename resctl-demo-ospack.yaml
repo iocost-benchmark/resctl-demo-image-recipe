@@ -1,0 +1,158 @@
+{{ $mirror := or .mirror "https://deb.debian.org/debian" }}
+{{ $suite := or .suite "bullseye"}}
+{{ $ospack := or .ospack "resctl-demo-ospack" }}
+
+architecture: amd64
+
+actions:
+  - action: debootstrap
+    suite: {{ $suite }}
+    components:
+      - main
+    mirror: {{ $mirror }}
+    variant: minbase
+
+  - action: apt
+    description: Core packages
+    packages:
+      - apt-transport-https
+      - initramfs-tools
+      - sudo
+      - systemd-sysv
+      - udev
+
+  - action: apt
+    description: Kernel and bootloader packages
+    packages:
+#      - linux-image-amd64
+      - grub-pc
+
+# install custom linux-image package
+  - action: overlay
+    description: Copy custom packages
+    source: debs
+
+  - action: run
+    description: Install custom packages
+    chroot: true
+    command: dpkg -i /*.deb ; rm -rf /*.deb
+
+  - action: run
+    description: Install dependencies for custom packages
+    chroot: true
+    command: apt-get install -f --yes
+# </install custom packages>
+
+  - action: apt
+    description: Networking packages
+    packages:
+      - iproute2
+      - iputils-ping
+
+  - action: apt
+    description: openssh-server
+    packages:
+      - openssh-server
+
+  - action: apt
+    description: cloud-init (performs rootfs resize and ssh adds keys)
+    packages:
+      - cloud-init
+      - cloud-image-utils
+      - cloud-guest-utils
+      - btrfs-progs
+
+  - action: apt
+    description: Useful userspace packages
+    packages:
+      - atop
+      - curl
+      - fish
+      - less
+      - nano
+      - screen
+      - sysstat
+      - tmux
+      - vim
+      - wget
+
+  - action: apt
+    description: Depends for drgn
+    packages:
+      - autoconf
+      - automake
+      - bison
+      - flex
+      - gawk
+      - gcc
+      - libbz2-dev
+      - liblzma-dev
+      - libtool
+      - make
+      - pkgconf
+      - python3
+      - python3-dev
+      - python3-pip
+      - python3-setuptools
+      - zlib1g-dev
+
+  - action: run
+    description: Install drgn
+    chroot: true
+    command: pip3 install drgn
+
+  - action: run
+    description: Set hostname
+    command: echo "resctl-demo" > ${ROOTDIR}/etc/hostname
+
+  - action: run
+    description: Enable systemd-networkd
+    chroot: true
+    command: systemctl enable systemd-networkd
+
+  - action: run
+    description: Enable systemd-resolved
+    chroot: true
+    command: systemctl enable systemd-resolved
+
+  - action: run
+    description: Disable systemd-sysusers
+    chroot: true
+    command: systemctl mask systemd-sysusers.service
+
+  - action: overlay
+    description: Configuration for locale
+    source: overlays/locale
+
+  - action: overlay
+    description: Configuration for sshd
+    source: overlays/sshd
+
+  - action: overlay
+    description: Configuration for cloud-init
+    source: overlays/cloud-init
+
+  - action: overlay
+    description: Configuration for systemd-networkd
+    source: overlays/systemd-networkd
+
+  - action: overlay
+    description: Configuration for systemd-resolved
+    source: overlays/systemd-resolved
+
+  - action: run
+    description: Setup root user
+    chroot: true
+    command: echo "root:root" | chpasswd
+
+  - action: run
+    description: Setup demo user
+    chroot: true
+    script: scripts/setup-demo-user.sh
+
+  - action: overlay
+    description: Configuration for resctl-demo
+    source: overlays/resctl-demo
+
+  - action: pack
+    file: {{ $ospack }}.tar.gz

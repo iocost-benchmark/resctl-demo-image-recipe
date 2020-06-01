@@ -1,0 +1,26 @@
+image:
+  name: godebos/debos
+  entrypoint: [ "" ]
+
+variables:
+  CI_PROJECT_ID_PKG_LINUX: 2491
+  CI_PROJECT_ID_PKG_RESCTL_DEMO: 2482
+
+build:
+  tags:
+    - kvm
+  before_script:
+    - apt-get update && apt-get --yes install curl qemu-utils
+  script:
+    - echo "Downloading packages from CI"
+    - 'curl --location --output pkg-linux.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.collabora.com/api/v4/projects/${CI_PROJECT_ID_PKG_LINUX}/jobs/artifacts/debian/master/download?job=build"'
+    - 'curl --location --output pkg-resctl-demo.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.collabora.com/api/v4/projects/${CI_PROJECT_ID_PKG_RESCTL_DEMO}/jobs/artifacts/debian/master/download?job=build"'
+    - unzip \*.zip && rm *.zip
+    - mv artifacts/ debs/
+    - mkdir -p out && cd out
+    - debos --scratchsize=8G ../resctl-demo-ospack.yaml
+    - debos --scratchsize=8G ../resctl-demo-image.yaml
+  artifacts:
+    expire_in: 2 days
+    paths:
+      - out
