@@ -154,5 +154,10 @@ actions:
     description: Configuration for resctl-demo
     source: overlays/resctl-demo
 
+  - action: run
+    description: Fix demo user home permissions
+    chroot: true
+    command: chown -R demo:demo /home/demo
+
   - action: pack
     file: {{ $ospack }}.tar.gz
