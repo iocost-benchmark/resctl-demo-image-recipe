@@ -10,7 +10,7 @@ actions:
 
   - action: image-partition
     imagename: {{ $image }}.img
-    imagesize: 64GB
+    imagesize: 12GB
     partitiontype: msdos
     mountpoints:
       - mountpoint: /
@@ -48,6 +48,11 @@ actions:
     description: Update GRUB2 menu
     chroot: true
     command: update-grub
+
+  - action: run
+    description: Examine disk size
+    chroot: true
+    command: df -h / /boot
 
   - action: run
     description: Convert {{ $image }}.img to {{ $image }}.vmdk
