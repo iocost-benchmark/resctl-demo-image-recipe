@@ -58,8 +58,3 @@ actions:
     description: Convert {{ $image }}.img to {{ $image }}.vmdk
     postprocess: true
     command: qemu-img convert -f raw -O vmdk -o subformat=streamOptimized {{ $image }}.img {{ $image }}.vmdk
-
-#  - action: run
-#    description: Compress {{ $image }}.img
-#    postprocess: true
-#    command: pigz -f {{ $image }}.img

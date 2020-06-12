@@ -1,26 +1,57 @@
-image:
-  name: godebos/debos
-  entrypoint: [ "" ]
-
 variables:
   CI_PROJECT_ID_PKG_LINUX: 2491
   CI_PROJECT_ID_PKG_RESCTL_DEMO: 2482
 
+stages:
+  - build
+
+.deploy_snippet: &deploy
+  - >
+    if [ "${CI_COMMIT_BRANCH}" == "master" ]; then
+      eval $(ssh-agent -s)
+      chmod 0600 ${DEPLOY_SSH_KEY}
+      ssh-add ${DEPLOY_SSH_KEY}
+      scp -oStrictHostKeyChecking=no "resctl-demo-image_${VERSION}.img.gz" facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no "resctl-demo-image_${VERSION}.vmdk" facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no "latest-version.txt" facebook@images.collabora.co.uk:images/
+    fi
+
+.deploy_ec2_ami_snippet: &deploy_ec2_ami
+  - >
+    if [ "${CI_COMMIT_BRANCH}" == "master" ]; then
+      python3 ../upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="resctl-demo-image_${VERSION}.vmdk"
+    fi
+
 build:
+  image:
+    name: godebos/debos
+    entrypoint: [ "" ]
   tags:
     - kvm
+  stage: build
   before_script:
-    - apt-get update && apt-get --yes install curl qemu-utils
+    - apt-get update && apt-get --yes install curl qemu-utils python3-pip openssh-client
+    - pip3 install apache-libcloud
   script:
     - echo "Downloading packages from CI"
     - 'curl --location --output pkg-linux.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.collabora.com/api/v4/projects/${CI_PROJECT_ID_PKG_LINUX}/jobs/artifacts/debian/master/download?job=build"'
     - 'curl --location --output pkg-resctl-demo.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.collabora.com/api/v4/projects/${CI_PROJECT_ID_PKG_RESCTL_DEMO}/jobs/artifacts/debian/master/download?job=build"'
     - unzip \*.zip && rm *.zip
     - mv artifacts/ debs/
-    - mkdir -p out && cd out
-    - debos --scratchsize=8G ../resctl-demo-ospack.yaml
-    - debos --scratchsize=8G ../resctl-demo-image.yaml
-  artifacts:
-    expire_in: 2 days
-    paths:
-      - out
+
+    - echo "Downloading linux payload"
+    - 'curl --location --output linux.tar.xz "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-5.5.4.tar.xz"'
+    - xz -d linux.tar.xz
+    - mv linux.tar overlays/resctl-demo/usr/local/resctl-demo
+
+    - export VERSION="$(date '+%Y%m%d.%H%M%S')-${CI_COMMIT_SHORT_SHA}"
+    - mkdir out
+    - echo ${VERSION} > out/latest-version.txt
+    - cd out
+    - debos --scratchsize=16G ../resctl-demo-ospack.yaml
+    - debos --scratchsize=16G ../resctl-demo-image.yaml
+    - pigz resctl-demo-image.img
+    - mv resctl-demo-image.img.gz "resctl-demo-image_${VERSION}.img.gz"
+    - mv resctl-demo-image.vmdk "resctl-demo-image_${VERSION}.vmdk"
+    - *deploy
+    - *deploy_ec2_ami
