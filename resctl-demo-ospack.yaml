@@ -132,6 +132,10 @@ actions:
     source: overlays/locale
 
   - action: overlay
+    description: Configuration for motd
+    source: overlays/motd
+
+  - action: overlay
     description: Configuration for sshd
     source: overlays/sshd
 
