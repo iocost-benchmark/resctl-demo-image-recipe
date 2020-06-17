@@ -36,5 +36,4 @@ mkswap ${SWAPFILE}
 swapon ${SWAPFILE}
 
 # start resctl-demo
-systemctl stop oomd.service
 systemd-run --scope --slice hostcritical.slice --unit resctl-demo /usr/bin/resctl-demo

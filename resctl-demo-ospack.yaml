@@ -43,6 +43,11 @@ actions:
     command: apt-get install -f --yes
 # </install custom packages>
 
+  - action: run
+    description: Disable oomd
+    chroot: true
+    command: systemctl disable oomd
+
   - action: apt
     description: Networking packages
     packages:
