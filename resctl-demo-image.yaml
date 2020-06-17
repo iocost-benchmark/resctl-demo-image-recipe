@@ -1,5 +1,6 @@
 {{ $ospack := or .ospack "resctl-demo-ospack" }}
 {{ $image := or .image "resctl-demo-image" }}
+{{ $imagesize := or .imagesize "12GB" }}
 {{ $cmdline := or .cmdline "root=LABEL=system console=tty0 rootwait quiet fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
 
 architecture: amd64
@@ -10,7 +11,7 @@ actions:
 
   - action: image-partition
     imagename: {{ $image }}.img
-    imagesize: 12GB
+    imagesize: {{ $imagesize }}
     partitiontype: msdos
     mountpoints:
       - mountpoint: /
