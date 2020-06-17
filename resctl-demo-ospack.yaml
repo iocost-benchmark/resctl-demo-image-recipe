@@ -69,7 +69,9 @@ actions:
       - curl
       - fish
       - less
+      - lsscsi
       - nano
+      - nvme-cli
       - screen
       - sysstat
       - tmux
