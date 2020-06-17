@@ -3,7 +3,7 @@ Welcome to resctl-demo!
 This test environment is based on Debian Bullseye.
 
 To start the demo, please run:
-  $ sudo ./start-resctl-demo
+  $ ./start-resctl-demo
 
 Make sure to run shutdown the instance when you are finished.
 

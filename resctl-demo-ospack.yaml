@@ -140,6 +140,10 @@ actions:
     source: overlays/sshd
 
   - action: overlay
+    description: Configuration for swap
+    source: overlays/swap
+
+  - action: overlay
     description: Configuration for cloud-init
     source: overlays/cloud-init
 

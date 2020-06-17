@@ -1,0 +1,21 @@
+[Unit]
+Description=Setup swap
+DefaultDependencies=no
+After=cloud-init.service
+After=systemd-networkd-wait-online.service
+After=networking.service
+Before=network-online.target
+Before=sshd.service
+Before=sysinit.target
+Conflicts=shutdown.target
+Before=systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/resctl-demo/setup-swap
+RemainAfterExit=yes
+TimeoutSec=0
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target

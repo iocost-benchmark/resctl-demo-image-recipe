@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Copyright © 2020 Collabora Ltd.
+# SPDX-License-Identifier: MIT
+
+set -x
+
+# read memory size (in MiB)
+MEMORY=$(awk '/MemTotal/ { printf "%.3f \n", $2/1024 }' /proc/meminfo)
+
+# swap location
+SWAPVOL=/swapvol
+SWAPFILE=${SWAPVOL}/swapfile
+SWAPFILE_SIZE=${MEMORY%.*}
+
+# disable existing swapfile
+[ $(swapon --show --noheadings | grep ${SWAPFILE} | wc -l) == "0" ] || swapoff ${SWAPFILE}
+
+# remove existing swapfile
+[ -f $SWAPFILE ] && rm -rf $SWAPFILE
+
+# create btrfs subvolume
+btrfs subvolume list ${SWAPVOL} &> /dev/null || btrfs subvolume create ${SWAPVOL}
+
+# create swapfile
+touch ${SWAPFILE}
+chattr +C ${SWAPFILE}
+fallocate --length ${SWAPFILE_SIZE}MiB ${SWAPFILE}
+chmod 600 ${SWAPFILE}
+mkswap ${SWAPFILE}
+swapon ${SWAPFILE}
