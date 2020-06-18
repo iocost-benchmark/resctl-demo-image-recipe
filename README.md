@@ -12,13 +12,13 @@ Place binary packages for `resctl-demo` and `resctl-demo-linux` under the `debs/
 See the `.gitlab-ci.yml` for further instructions.
 
     $ mkdir out && cd out
-    $ debos --scratchsize=8G ../resctl-demo-ospack.yaml
+    $ debos --scratchsize=16G ../resctl-demo-ospack.yaml
 
 
 # Build image & run under QEmu for local testing
 
     $ cd out
-    $ debos --scratchsize=8G -t imagesize:60GB ../resctl-demo-image.yaml
+    $ debos --scratchsize=16G -t imagesize:60GB ../resctl-demo-image.yaml
     $ ../start-qemu.sh
 
 
@@ -30,5 +30,5 @@ Some environment variables need to be set to your EC2 secrets:
 
 
     $ cd out
-    $ debos --scratchsize=8G ../resctl-demo-image.yaml
+    $ debos --scratchsize=16G ../resctl-demo-image.yaml
     $ python3 ../upload-image-aws-ec2.py --ami-name="resctl-demo" --ami-description="resctl-demo" --image-file="resctl-demo-image.vmdk"
