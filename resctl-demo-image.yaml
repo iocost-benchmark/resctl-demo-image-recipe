@@ -37,6 +37,12 @@ actions:
     append-kernel-cmdline: {{ $cmdline }}
 
   - action: run
+    description: Mount rootfs by LABEL instead of UUID
+    command: |
+      UUID=$(blkid "${IMAGE}-part2" -o export | grep "^UUID=")
+      sed -i "s/${UUID}/LABEL=system/g" ${ROOTDIR}/etc/fstab
+
+  - action: run
     description: Install GRUB2
     chroot: true
     command: grub-install ${IMAGE}
@@ -44,6 +50,10 @@ actions:
   - action: run
     description: Set GRUB2 cmdline
     command: sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="{{ $cmdline }}"/g' ${ROOTDIR}/etc/default/grub
+
+  - action: run
+    description: Do not include root=UUID in cmdline
+    command: sed -i 's/#GRUB_DISABLE_LINUX_UUID/GRUB_DISABLE_LINUX_UUID/g' ${ROOTDIR}/etc/default/grub
 
   - action: run
     description: Update GRUB2 menu
