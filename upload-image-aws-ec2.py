@@ -29,7 +29,7 @@ EC2_REGION = os.environ['EC2_REGION']
 EC2_BUCKET = os.environ['EC2_BUCKET']
 
 # connect to AWS
-aws_s3_driver = storage.providers.get_driver(storage.providers.Provider.S3)
+aws_s3_driver = storage.providers.get_driver(storage.providers.Provider.S3_EU_WEST)
 aws_s3 = aws_s3_driver(EC2_ACCESS_ID, EC2_SECRET_KEY, region=EC2_REGION)
 
 aws_ec2_driver = compute.providers.get_driver(compute.providers.Provider.EC2)
