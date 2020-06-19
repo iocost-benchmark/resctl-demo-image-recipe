@@ -1,6 +1,6 @@
 {{ $ospack := or .ospack "resctl-demo-ospack" }}
 {{ $image := or .image "resctl-demo-image" }}
-{{ $imagesize := or .imagesize "12GB" }}
+{{ $imagesize := or .imagesize "16GB" }}
 {{ $cmdline := or .cmdline "root=LABEL=system console=tty0 rootwait quiet fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
 
 architecture: amd64
@@ -35,6 +35,11 @@ actions:
   - action: filesystem-deploy
     description: Deploying ospack onto image
     append-kernel-cmdline: {{ $cmdline }}
+
+  - action: overlay
+    description: Copy {{ $ospack }}.tar.gz into image
+    source: out/{{ $ospack }}.tar.gz
+    destination: resctl-demo-root.tar.gz
 
   - action: run
     description: Mount rootfs by LABEL instead of UUID

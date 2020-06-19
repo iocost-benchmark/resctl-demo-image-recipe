@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Copyright © 2020 Collabora Ltd.
+# SPDX-License-Identifier: MIT
+
+# if only one drive present; no need to pivot
+if [ ! "$(lsblk -ln --nodeps -o PATH | wc -l)" -gt "1" ]; then
+  echo "no nvme found; not pivoting"
+  exit
+fi
+
+# find the nvme
+NEWROOT=$(lsblk -ln --nodeps -o PATH | sed -n 2p)
+echo "pivoting to ${NEWROOT}"
+
+# format nvme (already partitioned on AWS)
+mkfs.btrfs ${NEWROOT}
+
+# mount nvme
+mount ${NEWROOT} /mnt
+
+# re-label
+btrfs filesystem label / old_system
+btrfs filesystem label /mnt system
+
+# untar ospack to newroot
+tar xzf /resctl-demo-root.tar.gz --xattrs --xattrs-include=*.* -C /mnt
+
+# copy /etc/fstab to newroot
+cp /etc/fstab /mnt/etc/fstab
+cp /etc/kernel/cmdline /mnt/etc/kernel/cmdline
+
+# create lock file on nvme & reboot
+touch /mnt/etc/resctl-demo/PIVOT_COMPLETE
+sync
+
+echo "pivot complete"
+systemctl reboot

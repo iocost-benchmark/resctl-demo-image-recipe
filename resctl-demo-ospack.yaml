@@ -136,6 +136,10 @@ actions:
     source: overlays/motd
 
   - action: overlay
+    description: Configuration for pivot
+    source: overlays/pivot
+
+  - action: overlay
     description: Configuration for sshd
     source: overlays/sshd
 

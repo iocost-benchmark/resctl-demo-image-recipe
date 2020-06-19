@@ -1,0 +1,21 @@
+[Unit]
+Description=Pivot rootfs
+DefaultDependencies=no
+ConditionPathExists=!/etc/resctl-demo/PIVOT_COMPLETE
+After=cloud-init.service
+Before=setup-swap.service
+Before=network-online.target
+Before=sshd.service
+Before=sysinit.target
+Conflicts=shutdown.target
+Before=systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/resctl-demo/pivot-rootfs
+RemainAfterExit=yes
+TimeoutSec=0
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target

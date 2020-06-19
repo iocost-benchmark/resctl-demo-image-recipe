@@ -21,6 +21,8 @@ See the `.gitlab-ci.yml` for further instructions.
     $ debos --scratchsize=16G -t imagesize:60GB ../resctl-demo-image.yaml
     $ ../start-qemu.sh
 
+To test the root pivot service, use `start-qemu-pivot.sh` to add a second disk.
+
 
 # Build image & upload to AWS EC2
 
