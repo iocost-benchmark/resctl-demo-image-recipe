@@ -118,6 +118,11 @@ actions:
     command: systemctl enable systemd-networkd
 
   - action: run
+    description: Mask networking.service (dependency of cloud-init)
+    chroot: true
+    command: systemctl mask networking.service
+
+  - action: run
     description: Enable systemd-resolved
     chroot: true
     command: systemctl enable systemd-resolved
