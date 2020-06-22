@@ -12,8 +12,7 @@ stages:
       eval $(ssh-agent -s)
       chmod 0600 ${DEPLOY_SSH_KEY}
       ssh-add ${DEPLOY_SSH_KEY}
-      scp -oStrictHostKeyChecking=no "resctl-demo-image_${VERSION}.img.gz" facebook@images.collabora.co.uk:images/
-      scp -oStrictHostKeyChecking=no "resctl-demo-image_${VERSION}.vmdk" facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no resctl-demo-image_${VERSION}.* facebook@images.collabora.co.uk:images/
       scp -oStrictHostKeyChecking=no "latest-version.txt" facebook@images.collabora.co.uk:images/
     fi
 
@@ -78,6 +77,8 @@ build:
     - debos --scratchsize=16G ../resctl-demo-image.yaml
     - pigz resctl-demo-image.img
     - mv resctl-demo-image.img.gz "resctl-demo-image_${VERSION}.img.gz"
+    - sha256sum "resctl-demo-image_${VERSION}.img.gz" > "resctl-demo-image_${VERSION}.img.gz.sha256"
     - mv resctl-demo-image.vmdk "resctl-demo-image_${VERSION}.vmdk"
+    - sha256sum resctl-demo-image_${VERSION}.vmdk > resctl-demo-image_${VERSION}.vmdk.sha256
     - *deploy
     - *deploy_ec2_ami
