@@ -3,6 +3,7 @@ variables:
   CI_PROJECT_ID_PKG_RESCTL_DEMO: 2482
 
 stages:
+  - docker
   - build
 
 .deploy_snippet: &deploy
@@ -22,16 +23,41 @@ stages:
       python3 ../upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="resctl-demo-image_${VERSION}.vmdk"
     fi
 
-build:
+docker:
+  stage: docker
   image:
-    name: godebos/debos
-    entrypoint: [ "" ]
+    name: gcr.io/kaniko-project/executor:debug-v0.16.0
+    entrypoint: [""]
+  only:
+    - master
+  script:
+    - |
+      cat << EOF > /kaniko/.docker/config.json
+      {
+        "auths":{
+          "$CI_REGISTRY": {
+            "username":"$CI_REGISTRY_USER",
+            "password":"$CI_REGISTRY_PASSWORD"
+          }
+        }
+      }
+      EOF
+    - >
+      /kaniko/executor
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/ci-image-builder/Dockerfile
+      --destination $CI_REGISTRY_IMAGE/ci-image-builder:$CI_COMMIT_REF_SLUG
+      --build-arg REGISTRY=$CI_REGISTRY_IMAGE
+      --single-snapshot
+
+build:
+  stage: build
+  image:
+    name: $CI_REGISTRY_IMAGE/ci-image-builder:$CI_COMMIT_REF_SLUG
+    entrypoint: [""]
   tags:
     - kvm
   stage: build
-  before_script:
-    - apt-get update && apt-get --yes install curl qemu-utils python3-pip openssh-client
-    - pip3 install apache-libcloud
   script:
     - echo "Downloading packages from CI"
     - 'curl --location --output pkg-linux.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.collabora.com/api/v4/projects/${CI_PROJECT_ID_PKG_LINUX}/jobs/artifacts/debian/master/download?job=build"'
