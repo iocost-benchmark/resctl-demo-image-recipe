@@ -2,10 +2,37 @@
 # Copyright © 2020 Collabora Ltd.
 # SPDX-License-Identifier: MIT
 
+FORCE_PIVOT="n"
+
+# check if kernel cmdline parameter "resctldemo.forcepivot" present then force pivot
+if [ -f /proc/cmdline ] ; then
+  for OPT in $(cat /proc/cmdline) ; do
+    echo "cmdline option: \"$OPT\""
+    case $OPT in
+    resctldemo.forcepivot)
+      echo "force pivot enabled"
+      FORCE_PIVOT="y"
+      ;;
+    esac
+  done
+fi
+
+# check if running on AWS
+if [ "$FORCE_PIVOT" != "y" ] ; then
+  if [ ! -f /sys/devices/virtual/dmi/id/sys_vendor ] ; then
+    echo "cannot determine dmi sys_vendor; not pivoting"
+    exit 1
+  fi
+  if [ "$(cat /sys/devices/virtual/dmi/id/sys_vendor)" != "Amazon EC2" ] ; then
+    echo "not running on AWS; not pivoting"
+    exit 0
+  fi
+fi
+
 # if only one drive present; no need to pivot
-if [ ! "$(lsblk -ln --nodeps -o PATH | wc -l)" -gt "1" ]; then
+if [ ! "$(lsblk -ln --nodeps -o PATH | wc -l)" -gt "1" ] ; then
   echo "no nvme found; not pivoting"
-  exit
+  exit 0
 fi
 
 # find the nvme

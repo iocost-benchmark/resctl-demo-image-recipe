@@ -21,8 +21,6 @@ See the `.gitlab-ci.yml` for further instructions.
     $ debos --scratchsize=16G -t imagesize:60GB ../resctl-demo-image.yaml
     $ ../start-qemu.sh
 
-To test the root pivot service, use `start-qemu-pivot.sh` to add a second disk.
-
 
 # Build image & upload to AWS EC2
 
@@ -34,3 +32,15 @@ Some environment variables need to be set to your EC2 secrets:
     $ cd out
     $ debos --scratchsize=16G ../resctl-demo-image.yaml
     $ python3 ../upload-image-aws-ec2.py --ami-name="resctl-demo" --ami-description="resctl-demo" --image-file="resctl-demo-image.vmdk"
+
+
+# Root pivot
+Some virtual machine hosts have SSD drives which cannot install operating systems to.
+If running on AWS EC2 or the kernel cmdline parameter `resctldemo.forcepivot` is present, if there is a second
+disk attached to the machine, a systemd service will attempt to copy the rootfs to this
+second disk and attempt to boot from there.
+
+To test the root pivot service, use `start-qemu-pivot.sh` which adds a second disk to the virtual machine.
+The root pivot service will only run if the bootloader is modified to add `resctldemo.forcepivot` to the kernel cmdline parameters.
+
+
