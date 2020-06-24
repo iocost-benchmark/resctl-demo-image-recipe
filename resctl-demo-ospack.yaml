@@ -75,6 +75,7 @@ actions:
       - fish
       - less
       - lsscsi
+      - mosh
       - nano
       - nvme-cli
       - screen
