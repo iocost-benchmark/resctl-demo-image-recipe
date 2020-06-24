@@ -5,4 +5,5 @@
 set -x
 
 # start resctl-demo
-sudo systemd-run --scope --slice hostcritical.slice --unit resctl-demo /usr/bin/resctl-demo --linux /usr/local/resctl-demo/linux.tar
+sudo systemd-run --scope --slice hostcritical.slice --unit resctl-demo \
+  /usr/bin/resctl-demo --iocost-mon --linux /usr/local/resctl-demo/linux.tar
