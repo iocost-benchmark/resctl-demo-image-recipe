@@ -19,7 +19,7 @@ stages:
 .deploy_ec2_ami_snippet: &deploy_ec2_ami
   - >
     if [ "${CI_COMMIT_BRANCH}" == "master" ]; then
-      python3 ../upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="resctl-demo-image_${VERSION}.vmdk"
+      python3 ../aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="resctl-demo-image_${VERSION}.vmdk"
     fi
 
 docker:

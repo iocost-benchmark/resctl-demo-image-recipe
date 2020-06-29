@@ -1,7 +1,46 @@
 #!/usr/bin/env python3
-# TODO licence
-# TODO expand documentation
+# Copyright 2020 Collabora Ltd.
+# SPDX-License-Identifier: MIT
+#
+# upload-image-aws-ec2.py attempts to upload an operating system image in VMDK
+# format to AWS cloud as a marketplace image.
+# By default these images are private, requiring a manual step to make the image
+# public.
+#
+# The AWS credentials are passed to this script via environment variables:
+#  - `EC2_ACCESS_ID` should be set to the AWS Access ID.
+#  - `EC2_SECRET_KEY` should be set to the AWS Secret key. These can be generated from:
+#  - `EC2_REGION` should be set to the AWS region the image should reside in. Currently
+#    only `eu-west-1` is supported.
+#  - `EC2_BUCKET` should be set to the AWS S3 bucket used for intermediate storage.
+#    This bucket needs to be created before running the script.
+#
+# To generate credentials, see the following link:
+#  https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys
+#
+#
+# Before running this script, some permissions and a storage bucket need to be
+# created in the AWS account.
+# The examples use a bucket named `resctl-demo-image-import`. Feel free to rename
+# this in the json files.
+#
+#    sudo apt install awscli
+#    aws iam create-role \
+#      --role-name vmimport \
+#      --assume-role-policy-document "file://./aws-ec2/trust-policy.json"
+#    aws iam put-role-policy \
+#      --role-name vmimport \
+#      --policy-name vmimport \
+#      --policy-document file://./aws-ec2/role-policy.json
+#    aws s3api create-bucket \
+#      --bucket resctl-demo-image-import \
+#      --acl private \
+#      --create-bucket-configuration LocationConstraint=eu-west-1
+#
+# Requirements for this script are Apache libcloud from Bullseye or above.
 # sudo apt install python3-libcloud
+# or, the requirements.txt file in the working directory can be used with pip3.
+
 import argparse
 import logging
 import os
