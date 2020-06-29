@@ -41,6 +41,11 @@ actions:
     description: Install dependencies for custom packages
     chroot: true
     command: apt-get install -f --yes
+
+  - action: run
+    description: Mark custom packages as hold
+    chroot: true
+    command: apt-mark hold linux* resctl-demo
 # </install custom packages>
 
   - action: run
