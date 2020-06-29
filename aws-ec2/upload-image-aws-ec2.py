@@ -134,5 +134,12 @@ image = aws_ec2.ex_register_image(name=args.ami_name,
                                   sriov_net_support='simple')
 image_id = image.id
 log.info("creating EC2 AMI complete; id=%s", image_id)
+
 # TODO make image public: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sharingamis-intro.html
-# TODO delete file from s3
+
+# delete file from s3
+if args.image_file != '':
+    log.info('deleting %s from container %s',
+              obj.name,
+              container.name)
+    container.delete_object(obj)
