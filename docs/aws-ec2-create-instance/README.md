@@ -3,14 +3,14 @@
 ## Login to AWS console
 * Login to the AWS console: https://console.aws.amazon.com/console/home
 
-* Make sure that your public key is setup by navigating to `Services > EC2 > Key pairs` then choosing `Create key pair` and following the instructions. For more information see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
-
-![](keypair.png)
-
-* Make sure the region `Ireland` is slected in the menu bar.
+* Make sure the region `Ireland` is selected in the menu bar.
 
 ![](select_region.png)
 ---
+
+* Make sure that your public key is setup in this region by navigating to `Services > EC2 > Key pairs` then choosing `Create key pair` and following the instructions. For more information see: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
+
+![](keypair.png)
 
 ## Find Amazon Machine Image (AMI)
 
@@ -56,8 +56,9 @@
 
 * Mostly leave with the defaults, other than:
 * `Shutdown behavior > Terminate` removes the machine when it is shutdown.
-* `User data` can be populated with cloud-init YAML data to modify the machine once it has started. For instance, to add keys of Tejun, Chris and Thomas to the instance:
+* `User data` can be populated with cloud-init YAML data to modify the machine once it has started.
 
+For instance, to add keys of Tejun, Chris and Thomas to the instance:
 ```
 #cloud-config
 ssh_authorized_keys:
@@ -66,6 +67,8 @@ ssh_authorized_keys:
   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDWLmpQELLrEgrSKUWJAwkwMIM5wWfnvON6/GckrMNsCMz761OCvtRs6jc/6UPDd2wQZYutTId+0kCcJ9YDr4vUfamLZCCnz8AX8FFLOS0GfO26xvjAFcYYC7Kc6WdgagzokaXEnjTpAdIQ+jC4mCh/EsSo2ODeT6bOh+Ew32P9lmK48pHFb1ZJFPvMvq+z75d6lSsjQfWboeSLNYWmOypDW+GXMTOgiCqwHLAEx3eDGfdjnxb2NyexZ0gbZ5brMJYwrLgXIRjkU3OZ8v1MaqG0/EmSLHz7BSPjHq9Qio0+OcC9VM6nAyxe5KqeDlFcnC/yDerpRmIKHiQjPg2LaFP5 user@Users-MacBook-Pro-2.local
   - ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAhPa8R9jgFJ2gv2bhCBMgEyniBsgyOtAQVm1NiycVEorpQSCBSlaqTy97k3Ro+lSgMuB5VwPZOZoUdawzUokTI+XCg7RZMi8GiTPfdAUr/AlsrVz4lTb3yoyGpIBVNvXAsf4gusHZSVhKQhJR2FfENfizkXSGOxLHbItl+I+GEtjgAdulba3S+Mx+ROhyDu8G6obf+wwqD3a3pg7w0vvReQt3wC0rMNS3voz8BW5OmZc2XZN5IWa9pVEDIKa1jAvE+QKXUAc6mOOGdjxT7+5Q/qV50QVtcEPcOmRJVW3yHhriEvy+OXA1eebUG62nmR+rY72we3Yjgyp20qz+3ILpEw== obbardc
 ```
+
+By default the public key uploaded to the key-pair section previously is included in the instance, adding User data allows you to add more keys if required.
 
 ---
 
@@ -96,7 +99,12 @@ ssh_authorized_keys:
 ![](choose_machine.png)
 ---
 
-### Instance information
+### Login to instance
 * After a few minutes, the `Instance State` should change to `running` and the IP address should be present.
-* Login to the instance via SSH with the username demo and the IP shown.
+* Do not attempt to connect to the machine using the `Connect` button, but instead login to the instance via SSH with the username demo and the IP shown. Logging in can be done using the following command on your local machine (where `ip_address` is the instance IP address):
+```
+$ ssh demo@ip_address
+```
+
+---
 ![](instance_info.png)
