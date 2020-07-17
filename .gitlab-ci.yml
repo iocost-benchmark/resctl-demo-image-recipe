@@ -27,8 +27,6 @@ docker:
   image:
     name: gcr.io/kaniko-project/executor:debug-v0.16.0
     entrypoint: [""]
-  only:
-    - master
   script:
     - |
       cat << EOF > /kaniko/.docker/config.json
