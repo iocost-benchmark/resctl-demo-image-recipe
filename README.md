@@ -60,13 +60,23 @@ format a disk image from the recipe `resctl-demo-image.yaml`. The ospack is
 extracted into the disk image and other parameters like the Kernel cmdline are
 set and the bootloader installed.
 
-For the pipelines running on the default branch, the compressed images are uploaded
+For pipelines running on the default branch, the compressed images are uploaded
 to the project's [image storage area](https://images.collabora.com/facebook/).
 
-Also for pipelines running on the the default branch, the built image is uploaded
+For pipelines running on the the default branch, the built image is uploaded
 to AWS and converted to an Amazon Machine Image using the script `aws-ec2/upload-image-aws-ec2.py`.
 The CI environment sets some environment variables: `EC2_ACCESS_ID`, `EC2_SECRET_KEY`,
-`EC2_REGION`, `EC2_BUCKET`. These can be modified on request.
+`EC2_REGION`, `EC2_BUCKET`. These can be modified by Collabora on request.
+See the documentation included inside the the script to setup the AWS account for
+images to be uploaded to.
+
+After the pipeline has ran, under Amazon AWS interface, go to `Services > EC2` then
+in the menu on the LHS, select `Images > AMIs`. The new image should be visible but
+private and this will need to manually be modified to public. This is because
+some QA testing may be required before allowing the public to access the image.
+Click on the AMI, select the `Permissions` tab and press `Edit`. The image can be
+set to `Public` using the radio button then pressing save. Do double-check by
+refreshing the list.
 
 
 ## Image changes/updates
@@ -86,6 +96,9 @@ this repository. To do this, go to the `CI / CD` page using the navigation bar o
 the left-hand side, then press the `Run Pipeline` button at the top of the page
 and then pressing `Run Pipeline` again on the next page. The pipeline will now
 run and the status can be monitored by going to the `CI / CD > Pipelines` page.
+
+The created image is private; see the steps above to make the image public.
+
 
 # Local Build instructions
 
