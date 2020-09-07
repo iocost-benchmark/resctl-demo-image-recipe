@@ -23,10 +23,19 @@ if [ "$FORCE_PIVOT" != "y" ] ; then
     echo "cannot determine dmi sys_vendor; not pivoting"
     exit 1
   fi
-  if [ "$(cat /sys/devices/virtual/dmi/id/sys_vendor)" != "Amazon EC2" ] ; then
-    echo "not running on AWS; not pivoting"
-    exit 0
-  fi
+
+  case $(cat /sys/devices/virtual/dmi/id/sys_vendor) in
+    "Amazon EC2")
+      echo "running on AWS; pivoting rootfs"
+      ;;
+    "QEMU")
+      echo "running on QEMU; pivoting rootfs"
+      ;;
+    *)
+      echo "not running on AWS; not pivoting rootfs"
+      exit 0
+      ;;
+  esac
 fi
 
 # if only one drive present; no need to pivot
