@@ -4,6 +4,7 @@ DefaultDependencies=no
 After=cloud-init.service
 After=systemd-networkd-wait-online.service
 After=networking.service
+After=local-fs.target
 Before=network-online.target
 Before=sshd.service
 Before=sysinit.target
