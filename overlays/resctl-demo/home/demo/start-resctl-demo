@@ -4,6 +4,25 @@
 
 set -x
 
+# copy the bench.json file depending on AWS instance type
+INSTANCE_DATA="/run/cloud-init/instance-data.json"
+BENCH_DATA="/var/lib/resctl-demo/bench.json"
+if [ ! -f "${BENCH_DATA}" ] ; then
+
+  # read instance type
+  INSTANCE_TYPE="null"
+  if [ -f "${INSTANCE_DATA}" ] ; then
+    INSTANCE_TYPE=$(jq -r '.["ds"] | .["meta-data"] | .["instance-type"]' ${INSTANCE_DATA})
+  fi
+
+  # copy new bench data
+  BENCH_DATA_NEW="/var/lib/resctl-demo/bench_${INSTANCE_TYPE}.json"
+  if [ -f "${BENCH_DATA_NEW}" ] ; then
+    echo "Copying ${BENCH_DATA_NEW} to ${BENCH_DATA}"
+    cp ${BENCH_DATA_NEW} ${BENCH_DATA}
+  fi
+fi
+
 # start resctl-demo
 sudo systemd-run --scope --slice hostcritical.slice --unit resctl-demo \
   /usr/bin/resctl-demo --iocost-mon --linux /usr/local/resctl-demo/linux.tar

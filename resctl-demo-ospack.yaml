@@ -78,6 +78,7 @@ actions:
       - atop
       - curl
       - fish
+      - jq
       - less
       - lsscsi
       - mosh
