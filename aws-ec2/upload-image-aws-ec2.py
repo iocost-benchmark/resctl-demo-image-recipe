@@ -15,27 +15,38 @@
 #  - `EC2_BUCKET` should be set to the AWS S3 bucket used for intermediate storage.
 #    This bucket needs to be created before running the script.
 #
-# To generate credentials, see the following link:
+# This script requires AWS credentials, which can be created by going to the AWS
+# console and selecting `username > My Security Credentials > Access keys` and
+# creating a new access key.
+#
+# For more information on generating credentials, see the following link:
 #  https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys
 #
 #
 # Before running this script, some permissions and a storage bucket need to be
-# created in the AWS account.
+# created in the AWS account. The bucket name will need to be different.
 # The examples use a bucket named `resctl-demo-image-import`. Feel free to rename
 # this in the json files.
 #
+# Run these commands in the aws-ec2 directory.
+#
 #    sudo apt install awscli
+#
+#    export AWS_ACCESS_KEY_ID=?
+#    export AWS_SECRET_ACCESS_KEY=?
+#    export AWS_DEFAULT_REGION=eu-west-1
+#
 #    aws iam create-role \
 #      --role-name vmimport \
-#      --assume-role-policy-document "file://./aws-ec2/trust-policy.json"
+#      --assume-role-policy-document "file://./trust-policy.json"
 #    aws iam put-role-policy \
 #      --role-name vmimport \
 #      --policy-name vmimport \
-#      --policy-document file://./aws-ec2/role-policy.json
+#      --policy-document file://./role-policy.json
 #    aws s3api create-bucket \
 #      --bucket resctl-demo-image-import \
 #      --acl private \
-#      --create-bucket-configuration LocationConstraint=eu-west-1
+#      --create-bucket-configuration LocationConstraint=${AWS_DEFAULT_REGION}
 #
 # Requirements for this script are Apache libcloud from Bullseye or above.
 # sudo apt install python3-libcloud
