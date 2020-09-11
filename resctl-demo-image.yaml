@@ -1,7 +1,7 @@
 {{ $ospack := or .ospack "resctl-demo-ospack" }}
 {{ $image := or .image "resctl-demo-image" }}
 {{ $imagesize := or .imagesize "16GB" }}
-{{ $cmdline := or .cmdline "root=LABEL=system console=tty0 rootwait quiet fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
+{{ $cmdline := or .cmdline "root=LABEL=system console=tty0 console=ttyS0,115200n1 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
 
 architecture: amd64
 
@@ -55,6 +55,10 @@ actions:
     description: Install GRUB2
     chroot: true
     command: grub-install ${IMAGE}
+
+  - action: run
+    description: Do not include quiet in cmdline
+    command: sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT=""/g' ${ROOTDIR}/etc/default/grub
 
   - action: run
     description: Set GRUB2 cmdline

@@ -95,8 +95,12 @@ By default the public key uploaded to the key-pair section previously is include
 ---
 
 ### Instance creation
-* After a few seconds, you can click the machine ID to go to it in the instances log.
+* After a few seconds, you can click the machine ID to go to it in the instances log. There may be a slight delay with the system log review.
 ![](choose_machine.png)
+---
+
+### Instance system log
+* Right-click on the machine ID, choose `Instance settings > Get system log` to see the console output.
 ---
 
 ### Login to instance
