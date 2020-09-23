@@ -63,7 +63,7 @@ build:
     - mv artifacts/ debs/
 
     - echo "Downloading linux payload"
-    - 'curl --location --output linux.tar.xz "https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-5.5.4.tar.xz"'
+    - 'curl --location --output linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.8.11.tar.xz"'
     - xz -d linux.tar.xz
     - mv linux.tar overlays/resctl-demo/usr/local/resctl-demo
 
