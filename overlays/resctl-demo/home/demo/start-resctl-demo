@@ -4,9 +4,15 @@
 
 set -x
 
+# make sure base dir perm matches what resctl-demo would create
+RD_DIR="/var/lib/resctl-demo"
+sudo mkdir -p ${RD_DIR}
+sudo chown root.sudo ${RD_DIR}
+sudo chmod u+w,g+ws ${RD_DIR}
+
 # copy the bench.json file depending on AWS instance type
 INSTANCE_DATA="/run/cloud-init/instance-data.json"
-BENCH_DATA="/var/lib/resctl-demo/bench.json"
+BENCH_DATA="${RD_DIR}/bench.json"
 if [ ! -f "${BENCH_DATA}" ] ; then
 
   # read instance type
@@ -16,15 +22,15 @@ if [ ! -f "${BENCH_DATA}" ] ; then
   fi
 
   # copy new bench data
-  BENCH_DATA_NEW="/var/lib/resctl-demo/bench_${INSTANCE_TYPE}.json"
+  BENCH_DATA_NEW="${RD_DIR}/bench_${INSTANCE_TYPE}.json"
   if [ -f "${BENCH_DATA_NEW}" ] ; then
     echo "Copying ${BENCH_DATA_NEW} to ${BENCH_DATA}"
-    cp ${BENCH_DATA_NEW} ${BENCH_DATA}
+    sudo cp ${BENCH_DATA_NEW} ${BENCH_DATA}
   fi
 fi
 
 # layout rd-hashd testfiles here so that it happens with nice progress bar
-TESTFILES_PATH="/var/lib/resctl-demo/scratch/hashd-A/testfiles"
+TESTFILES_PATH="${RD_DIR}/scratch/hashd-A/testfiles"
 if [ ! -d "${TESTFILES_PATH}" ] ; then
     sudo rd-hashd --testfiles ${TESTFILES_PATH} --prepare
 fi
