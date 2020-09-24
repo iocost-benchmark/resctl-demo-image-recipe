@@ -1,0 +1,46 @@
+//
+// rd-agent benchmark results
+//
+//  timestamp: When this report was generated
+//  hashd_seq: Current rd-hashd bench result sequence, see cmd.json
+//  iocost_seq: Current iocost bench result sequence, see cmd.json
+//  hashd[].hash_size: Mean hash size which determines CPU usage
+//  hashd[].rps_max: Maximum RPS
+//  hashd[].mem_size: Memory size base
+//  hashd[].mem_frac: Memory size is mem_size * mem_frac, tune this if needed
+//  hashd[].mem_chunk_pages: Memory access chunk size in pages
+//  iocost.devnr: Storage device devnr
+//  iocost.model: Model parameters
+//  iocost.qos: QoS parameters
+//
+{
+  "timestamp": "2020-09-22T23:29:33.194863358+00:00",
+  "hashd_seq": 13,
+  "iocost_seq": 1,
+  "hashd": {
+    "hash_size": 3512445,
+    "rps_max": 1134,
+    "mem_size": 294618660864,
+    "mem_frac": 0.4061,
+    "mem_chunk_pages": 42
+  },
+  "iocost": {
+    "devnr": "259:3",
+    "model": {
+      "rbps": 1698647371,
+      "rseqiops": 150386,
+      "rrandiops": 125283,
+      "wbps": 800059053,
+      "wseqiops": 82539,
+      "wrandiops": 92235
+    },
+    "qos": {
+      "rpct": 95,
+      "rlat": 928,
+      "wpct": 95,
+      "wlat": 1260,
+      "min": 60,
+      "max": 100
+    }
+  }
+}
