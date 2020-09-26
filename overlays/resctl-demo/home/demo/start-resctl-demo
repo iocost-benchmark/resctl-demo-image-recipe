@@ -31,9 +31,7 @@ fi
 
 # layout rd-hashd testfiles here so that it happens with nice progress bar
 TESTFILES_PATH="${RD_DIR}/scratch/hashd-A/testfiles"
-if [ ! -d "${TESTFILES_PATH}" ] ; then
-    sudo rd-hashd --testfiles ${TESTFILES_PATH} --prepare
-fi
+sudo rd-hashd --testfiles ${TESTFILES_PATH} --prepare
 
 # start resctl-demo
 sudo systemd-run --scope --slice hostcritical.slice --unit resctl-demo \
