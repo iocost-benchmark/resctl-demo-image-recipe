@@ -85,6 +85,7 @@ actions:
       - nano
       - nvme-cli
       - screen
+      - stress
       - sysstat
       - tmux
       - vim
