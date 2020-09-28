@@ -35,4 +35,6 @@ sudo rd-hashd --testfiles ${TESTFILES_PATH} --prepare
 
 # start resctl-demo
 sudo systemd-run --scope --slice hostcritical.slice --unit resctl-demo \
-  /usr/bin/resctl-demo --linux /usr/local/resctl-demo/linux.tar
+  -E RUST_LOG=info -E RUST_BACKTRACE=1 -E RUST_LIB_BACKTRACE=1 \
+  /usr/bin/resctl-demo --linux /usr/local/resctl-demo/linux.tar \
+  2> ~/resctl-demo.log
