@@ -5,12 +5,16 @@
 set -x
 
 # read memory size (in MiB)
-MEMORY=$(awk '/MemTotal/ { printf "%.3f \n", $2/1024 }' /proc/meminfo)
+MEMORY=$(awk '/MemTotal/ { printf "%d\n", $2/1024 }' /proc/meminfo)
 
 # swap location
 SWAPVOL=/swapvol
 SWAPFILE=${SWAPVOL}/swapfile
-SWAPFILE_SIZE=${MEMORY%.*}
+
+SWAPFILE_SIZE=$((MEMORY/3))
+if [ $SWAPFILE_SIZE -lt 4096 ]; then
+    SWAPFILE_SIZE=4096
+fi
 
 # disable existing swapfile
 [ $(swapon --show --noheadings | grep ${SWAPFILE} | wc -l) == "0" ] || swapoff ${SWAPFILE}
