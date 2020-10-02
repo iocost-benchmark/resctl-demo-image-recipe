@@ -1,9 +1,9 @@
 
-Welcome to resctl-demo!
+Welcome to Facebook Resource Control Demo!
 This test environment is based on Debian Bullseye.
 
 To start the demo, please run:
   $ ./start-resctl-demo
 
-Make sure to run shutdown the instance when you are finished.
+Power off the instance when you are finished - `sudo poweroff`.
 
