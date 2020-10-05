@@ -9,27 +9,23 @@ stages:
 .deploy_snippet: &deploy
   - >
     if [ "${CI_COMMIT_BRANCH}" == "master" ]; then
+      # move artifacts into their own directory
+      OUT="resctl-demo-${VERSION}"
+      mkdir "${OUT}"
+      mv "latest-version.txt" "${OUT}/"
+      for F in "${IMAGE_LEGACY}" "${IMAGE_EFI}" "${IMAGE_EFI_FLASHER}" ; do
+        mv "${F}.img.gz" "${OUT}/"
+        mv "${F}.img.gz.sha256" "${OUT}/"
+        mv "${F}.img.bmap" "${OUT}/"
+      done
+
+      # install ssh key
       eval $(ssh-agent -s)
       chmod 0600 ${DEPLOY_SSH_KEY}
       ssh-add ${DEPLOY_SSH_KEY}
 
-      # upload legacyboot image
-      scp -oStrictHostKeyChecking=no ${IMAGE_LEGACY}.img.gz facebook@images.collabora.co.uk:images/
-      scp -oStrictHostKeyChecking=no ${IMAGE_LEGACY}.img.gz.sha256 facebook@images.collabora.co.uk:images/
-      scp -oStrictHostKeyChecking=no ${IMAGE_LEGACY}.img.bmap facebook@images.collabora.co.uk:images/
-
-      # upload efiboot image
-      scp -oStrictHostKeyChecking=no ${IMAGE_EFI}.img.gz facebook@images.collabora.co.uk:images/
-      scp -oStrictHostKeyChecking=no ${IMAGE_EFI}.img.gz.sha256 facebook@images.collabora.co.uk:images/
-      scp -oStrictHostKeyChecking=no ${IMAGE_EFI}.img.bmap facebook@images.collabora.co.uk:images/
-
-      # upload flasher image
-      scp -oStrictHostKeyChecking=no ${IMAGE_EFI_FLASHER}.img.gz facebook@images.collabora.co.uk:images/
-      scp -oStrictHostKeyChecking=no ${IMAGE_EFI_FLASHER}.img.gz.sha256 facebook@images.collabora.co.uk:images/
-      scp -oStrictHostKeyChecking=no ${IMAGE_EFI_FLASHER}.img.bmap facebook@images.collabora.co.uk:images/
-
-      # upload latest-version.txt
-      scp -oStrictHostKeyChecking=no "latest-version.txt" facebook@images.collabora.co.uk:images/
+      # copy files to images dump
+      scp -oStrictHostKeyChecking=no -r ${OUT} facebook@images.collabora.co.uk:images/
     fi
 
 .deploy_ec2_ami_snippet: &deploy_ec2_ami
@@ -96,5 +92,5 @@ build:
     - debos -t "image:${IMAGE_LEGACY}" ../resctl-demo-image-legacyboot.yaml
     - debos -t "image:${IMAGE_EFI}" ../resctl-demo-image-efiboot.yaml
     - debos -t "image:${IMAGE_EFI_FLASHER}" -t "flash_image:${IMAGE_EFI}" ../resctl-demo-flasher-efiboot.yaml
-    - *deploy
     - *deploy_ec2_ami
+    - *deploy
