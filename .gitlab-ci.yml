@@ -12,18 +12,26 @@ stages:
       eval $(ssh-agent -s)
       chmod 0600 ${DEPLOY_SSH_KEY}
       ssh-add ${DEPLOY_SSH_KEY}
-      scp -oStrictHostKeyChecking=no ${IMAGE}.img.gz facebook@images.collabora.co.uk:images/
-      scp -oStrictHostKeyChecking=no ${IMAGE}.img.gz.sha256 facebook@images.collabora.co.uk:images/
-      scp -oStrictHostKeyChecking=no ${IMAGE}.img.bmap facebook@images.collabora.co.uk:images/
-      scp -oStrictHostKeyChecking=no ${IMAGE}.vmdk facebook@images.collabora.co.uk:images/
-      scp -oStrictHostKeyChecking=no ${IMAGE}.vmdk.gz facebook@images.collabora.co.uk:images/
+
+      # upload legacyboot image
+      scp -oStrictHostKeyChecking=no ${IMAGE_LEGACY}.img.gz facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no ${IMAGE_LEGACY}.img.gz.sha256 facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no ${IMAGE_LEGACY}.img.bmap facebook@images.collabora.co.uk:images/
+
+      # upload efiboot image
+      scp -oStrictHostKeyChecking=no ${IMAGE_EFI}.img.gz facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no ${IMAGE_EFI}.img.gz.sha256 facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no ${IMAGE_EFI}.img.bmap facebook@images.collabora.co.uk:images/
+
+      # upload latest-version.txt
       scp -oStrictHostKeyChecking=no "latest-version.txt" facebook@images.collabora.co.uk:images/
     fi
 
 .deploy_ec2_ami_snippet: &deploy_ec2_ami
   - >
     if [ "${CI_COMMIT_BRANCH}" == "master" ]; then
-      python3 ../aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="${IMAGE}.vmdk"
+      # upload legacyboot image to AWS
+      python3 ../aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="${IMAGE_LEGACY}.vmdk"
     fi
 
 docker:
@@ -74,10 +82,12 @@ build:
     - mv linux.tar overlays/resctl-demo/usr/local/resctl-demo
 
     - export VERSION="$(date '+%Y%m%d.%H%M%S')-${CI_COMMIT_SHORT_SHA}"
-    - export IMAGE="resctl-demo-image_${VERSION}"
+    - export IMAGE_LEGACY="resctl-demo-image-legacyboot_${VERSION}"
+    - export IMAGE_EFI="resctl-demo-image-efiboot_${VERSION}"
     - mkdir out && cd out
     - echo ${VERSION} > latest-version.txt
     - debos --scratchsize=16G ../resctl-demo-ospack.yaml
-    - debos -t "image:${IMAGE}" ../resctl-demo-image.yaml
+    - debos -t "image:${IMAGE_LEGACY}" ../resctl-demo-image-legacyboot.yaml
+    - debos -t "image:${IMAGE_EFI}" ../resctl-demo-image-efiboot.yaml
     - *deploy
     - *deploy_ec2_ami

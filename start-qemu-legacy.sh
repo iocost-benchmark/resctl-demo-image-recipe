@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE=resctl-demo-image.img
+IMAGE=resctl-demo-image-legacy.img
 
 qemu-system-x86_64 \
   -machine type=q35,accel=kvm \

@@ -115,14 +115,16 @@ See the `.gitlab-ci.yml` for further instructions.
     $ debos --scratchsize=16G ../resctl-demo-ospack.yaml
 
 
-## Build image & run under QEmu for local testing
+## Build EFI image & run under QEmu for local testing
 
     $ cd out
-    $ debos -t imagesize:60GB ../resctl-demo-image.yaml
-    $ ../start-qemu.sh
+    $ debos -t imagesize:60GB ../resctl-demo-image-efi.yaml
+    $ ../start-qemu-efi.sh
 
 
-## Build image & upload to AWS EC2
+## Build Legacy Boot image & upload to AWS EC2
+
+Since AWS cannot boot EFI images, a legacy boot image must be created.
 
 Some environment variables need to be set to your EC2 secrets:
 
@@ -130,6 +132,6 @@ Some environment variables need to be set to your EC2 secrets:
 
 
     $ cd out
-    $ debos ../resctl-demo-image.yaml
+    $ debos ../resctl-demo-image-legacyboot.yaml
     $ python3 ../aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo" --ami-description="resctl-demo" --image-file="resctl-demo-image.vmdk"
 

@@ -1,5 +1,5 @@
 {{ $ospack := or .ospack "resctl-demo-ospack" }}
-{{ $image := or .image "resctl-demo-image" }}
+{{ $image := or .image "resctl-demo-image-legacyboot" }}
 {{ $imagesize := or .imagesize "16GB" }}
 {{ $cmdline := or .cmdline "root=LABEL=system console=tty0 console=ttyS0,115200n1 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
 
@@ -51,7 +51,7 @@ actions:
     description: Setup bootloader
     label: scripts/setup-bootloader.sh
     chroot: true
-    script: scripts/setup-bootloader.sh "{{ $cmdline }}"
+    script: scripts/setup-bootloader.sh "i386-pc" "{{ $cmdline }}"
 
   - action: run
     description: Examine disk size
