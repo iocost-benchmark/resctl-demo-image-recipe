@@ -6,9 +6,6 @@
 architecture: amd64
 
 actions:
-  - action: unpack
-    file: {{ $ospack }}.tar.gz
-
   - action: image-partition
     imagename: {{ $image }}.img
     imagesize: {{ $imagesize }}
@@ -33,8 +30,11 @@ actions:
         end: 100%
 
   - action: filesystem-deploy
-    description: Deploying ospack onto image
+    description: Deploy onto image
     append-kernel-cmdline: {{ $cmdline }}
+
+  - action: unpack
+    file: {{ $ospack }}.tar.gz
 
   - action: overlay
     description: Copy {{ $ospack }}.tar.gz into image

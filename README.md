@@ -118,7 +118,7 @@ See the `.gitlab-ci.yml` for further instructions.
 ## Build image & run under QEmu for local testing
 
     $ cd out
-    $ debos --scratchsize=16G -t imagesize:60GB ../resctl-demo-image.yaml
+    $ debos -t imagesize:60GB ../resctl-demo-image.yaml
     $ ../start-qemu.sh
 
 
@@ -130,6 +130,6 @@ Some environment variables need to be set to your EC2 secrets:
 
 
     $ cd out
-    $ debos --scratchsize=16G ../resctl-demo-image.yaml
+    $ debos ../resctl-demo-image.yaml
     $ python3 ../aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo" --ami-description="resctl-demo" --image-file="resctl-demo-image.vmdk"
 

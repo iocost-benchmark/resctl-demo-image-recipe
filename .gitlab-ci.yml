@@ -78,6 +78,6 @@ build:
     - mkdir out && cd out
     - echo ${VERSION} > latest-version.txt
     - debos --scratchsize=16G ../resctl-demo-ospack.yaml
-    - debos --scratchsize=16G -t "image:${IMAGE}" ../resctl-demo-image.yaml
+    - debos -t "image:${IMAGE}" ../resctl-demo-image.yaml
     - *deploy
     - *deploy_ec2_ami
