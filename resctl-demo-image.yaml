@@ -48,26 +48,10 @@ actions:
       sed -i "s/${UUID}/LABEL=system/g" ${ROOTDIR}/etc/fstab
 
   - action: run
-    description: Install GRUB2
+    description: Setup bootloader
+    label: scripts/setup-bootloader.sh
     chroot: true
-    command: grub-install ${IMAGE}
-
-  - action: run
-    description: Do not include quiet in cmdline
-    command: sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT=""/g' ${ROOTDIR}/etc/default/grub
-
-  - action: run
-    description: Set GRUB2 cmdline
-    command: sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="{{ $cmdline }}"/g' ${ROOTDIR}/etc/default/grub
-
-  - action: run
-    description: Do not include root=UUID in cmdline
-    command: sed -i 's/#GRUB_DISABLE_LINUX_UUID/GRUB_DISABLE_LINUX_UUID/g' ${ROOTDIR}/etc/default/grub
-
-  - action: run
-    description: Update GRUB2 menu
-    chroot: true
-    command: update-grub
+    script: scripts/setup-bootloader.sh "{{ $cmdline }}"
 
   - action: run
     description: Examine disk size

@@ -21,12 +21,6 @@ actions:
       - systemd-sysv
       - udev
 
-  - action: apt
-    description: Kernel and bootloader packages
-    packages:
-#      - linux-image-amd64
-      - grub-pc
-
 # install custom linux-image package
   - action: overlay
     description: Copy custom packages
