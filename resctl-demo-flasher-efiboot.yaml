@@ -1,0 +1,106 @@
+{{ $mirror := or .mirror "https://deb.debian.org/debian" }}
+{{ $suite := or .suite "bullseye"}}
+{{ $image := or .image "resctl-demo-flasher-efiboot" }}
+{{ $flash_image := or .flash_image "resctl-demo-image-efiboot" }}
+
+architecture: amd64
+
+actions:
+  - action: debootstrap
+    suite: {{ $suite }}
+    components:
+      - main
+    mirror: {{ $mirror }}
+    variant: minbase
+
+  - action: apt
+    description: Core packages
+    recommends: false
+    packages:
+      - systemd-sysv
+      - udev
+      - grub-efi-amd64
+      - linux-image-amd64
+      - bmap-tools
+      - efibootmgr
+      - parted
+      - btrfs-progs
+      - dialog
+
+  - action: run
+    description: Set hostname
+    chroot: true
+    command: echo "resctl-demo-flasher" > /etc/hostname
+
+  - action: run
+    description: Set root password
+    chroot: true
+    command: echo "root:root" | chpasswd
+
+  - action: run
+    description: Set init
+    chroot: true
+    command: ln -sf /usr/bin/systemd /init
+
+  - action: overlay
+    description: Overlay installer scripts
+    source: flasher/overlays/installer
+
+  - action: run
+    description: Disable tty1 getty
+    chroot: true
+    command: systemctl disable getty@tty1.service
+
+  - action: image-partition
+    imagename: {{ $image }}.img
+    imagesize: 15G
+    partitiontype: gpt
+    mountpoints:
+      - mountpoint: /
+        partition: EFI
+      - mountpoint: /mnt
+        partition: flasher-storage
+    partitions:
+      - name: EFI
+        partlabel: efi
+        parttype: c12a7328-f81f-11d2-ba4b-00a0c93ec93b
+        fs: vfat
+        start: 6176s
+        end: 256M
+        flags: [ boot ]
+      - name: flasher-storage
+        fs: ext4
+        start: 256M
+        end: 100%
+
+  - action: run
+    description: Install images for flashing
+    chroot: false
+    command: cp ${ARTIFACTDIR}/{{ $flash_image }}.img.gz ${IMAGEMNTDIR}/mnt/resctl-demo-image.img.gz &&
+             cp ${ARTIFACTDIR}/{{ $flash_image }}.img.bmap ${IMAGEMNTDIR}/mnt/resctl-demo-image.img.bmap &&
+             cp ${ARTIFACTDIR}/{{ $flash_image }}.img.gz.sha256 ${IMAGEMNTDIR}/mnt/resctl-demo-image.img.gz.sha256
+
+  - action: run
+    description: Setup flasher
+    chroot: false
+    script: flasher/scripts/setup-flasher.sh
+
+  - action: run
+    description: Examine disk size
+    chroot: false
+    command: df -h "${IMAGEMNTDIR}/" "${IMAGEMNTDIR}/mnt"
+
+  - action: run
+    description: Create block map for {{ $image }}.img
+    postprocess: true
+    command: bmaptool create {{ $image }}.img > {{ $image }}.img.bmap
+
+  - action: run
+    description: Compress {{ $image }}.img
+    postprocess: true
+    command: pigz -f -k {{ $image }}.img
+
+  - action: run
+    description: Checksum for {{ $image }}.img.gz
+    postprocess: true
+    command: sha256sum {{ $image }}.img.gz > {{ $image }}.img.gz.sha256

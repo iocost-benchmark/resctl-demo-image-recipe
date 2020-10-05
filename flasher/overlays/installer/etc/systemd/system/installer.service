@@ -1,0 +1,14 @@
+[Unit]
+Description=Installer
+
+[Service]
+Type=idle
+ExecStart=/usr/local/bin/installer.sh
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+
+[Install]
+WantedBy=installer.target

@@ -22,6 +22,15 @@ second disk and attempt to boot from there.
 To test the root pivot service, use `start-qemu-pivot.sh` which adds a second disk to the virtual machine.
 The root pivot service will only run if the bootloader is modified to add `resctldemo.forcepivot` to the kernel cmdline parameters.
 
+## Flasher
+A flasher image is created, `resctl-demo-flasher-efiboot.img` which can be copied to a USB flash drive (or other removable media) to install the demo OS to your PC.
+EFI boot mode needs to be enabled.
+WARNING: Booting this image and following the prompts may remove all of your personal data.
+
+Copy the flasher image to the disk:
+
+    $ bmaptool copy resctl-demo-flasher-efiboot.img.gz /dev/sd?
+
 
 # GitLab CI Build instructions
 
@@ -118,8 +127,18 @@ See the `.gitlab-ci.yml` for further instructions.
 ## Build EFI image & run under QEmu for local testing
 
     $ cd out
-    $ debos -t imagesize:60GB ../resctl-demo-image-efi.yaml
+    $ debos -t imagesize:60GB ../resctl-demo-image-efiboot.yaml
     $ ../start-qemu-efi.sh
+
+
+## Build EFI flasher image & run under QEMu for local testing
+
+The EFI flasher image will flash the image to a local hard driver.
+
+    $ cd out
+    $ debos ../resctl-demo-image-efiboot.yaml
+    $ debos ../resctl-demo-flasher-efiboot.yaml
+    $ ../start-qemu-flasher-efi.sh
 
 
 ## Build Legacy Boot image & upload to AWS EC2
