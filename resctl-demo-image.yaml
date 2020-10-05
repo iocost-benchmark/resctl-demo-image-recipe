@@ -32,10 +32,6 @@ actions:
         start: 256M
         end: 100%
 
-  - action: run
-    description: Workaround debos issue 154
-    command: partprobe
-
   - action: filesystem-deploy
     description: Deploying ospack onto image
     append-kernel-cmdline: {{ $cmdline }}
