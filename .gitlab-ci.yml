@@ -31,6 +31,8 @@ docker:
   image:
     name: gcr.io/kaniko-project/executor:debug-v0.16.0
     entrypoint: [""]
+  tags:
+    - lightweight
   script:
     - |
       cat << EOF > /kaniko/.docker/config.json
