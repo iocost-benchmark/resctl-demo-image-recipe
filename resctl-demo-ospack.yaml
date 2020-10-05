@@ -48,11 +48,6 @@ actions:
     command: apt-mark hold linux* resctl-demo
 # </install custom packages>
 
-  - action: run
-    description: Disable oomd
-    chroot: true
-    command: systemctl disable oomd
-
   - action: apt
     description: Networking packages
     packages:
@@ -112,9 +107,14 @@ actions:
       - zlib1g-dev
 
   - action: run
-    description: Install drgn
+    description: Install drgn from source
     chroot: true
     command: pip3 install drgn
+
+  - action: run
+    description: Install oomd from source
+    chroot: true
+    script: scripts/install-oomd.sh
 
   - action: run
     description: Set hostname
