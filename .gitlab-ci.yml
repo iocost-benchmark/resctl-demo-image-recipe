@@ -12,14 +12,18 @@ stages:
       eval $(ssh-agent -s)
       chmod 0600 ${DEPLOY_SSH_KEY}
       ssh-add ${DEPLOY_SSH_KEY}
-      scp -oStrictHostKeyChecking=no resctl-demo-image_${VERSION}.* facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no ${IMAGE}.img.gz facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no ${IMAGE}.img.gz.sha256 facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no ${IMAGE}.img.bmap facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no ${IMAGE}.vmdk facebook@images.collabora.co.uk:images/
+      scp -oStrictHostKeyChecking=no ${IMAGE}.vmdk.gz facebook@images.collabora.co.uk:images/
       scp -oStrictHostKeyChecking=no "latest-version.txt" facebook@images.collabora.co.uk:images/
     fi
 
 .deploy_ec2_ami_snippet: &deploy_ec2_ami
   - >
     if [ "${CI_COMMIT_BRANCH}" == "master" ]; then
-      python3 ../aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="resctl-demo-image_${VERSION}.vmdk"
+      python3 ../aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="${IMAGE}.vmdk"
     fi
 
 docker:
@@ -68,15 +72,10 @@ build:
     - mv linux.tar overlays/resctl-demo/usr/local/resctl-demo
 
     - export VERSION="$(date '+%Y%m%d.%H%M%S')-${CI_COMMIT_SHORT_SHA}"
-    - mkdir out
-    - echo ${VERSION} > out/latest-version.txt
-    - cd out
+    - export IMAGE="resctl-demo-image_${VERSION}"
+    - mkdir out && cd out
+    - echo ${VERSION} > latest-version.txt
     - debos --scratchsize=16G ../resctl-demo-ospack.yaml
-    - debos --scratchsize=16G ../resctl-demo-image.yaml
-    - pigz resctl-demo-image.img
-    - mv resctl-demo-image.img.gz "resctl-demo-image_${VERSION}.img.gz"
-    - sha256sum "resctl-demo-image_${VERSION}.img.gz" > "resctl-demo-image_${VERSION}.img.gz.sha256"
-    - mv resctl-demo-image.vmdk "resctl-demo-image_${VERSION}.vmdk"
-    - sha256sum resctl-demo-image_${VERSION}.vmdk > resctl-demo-image_${VERSION}.vmdk.sha256
+    - debos --scratchsize=16G -t "image:${IMAGE}" ../resctl-demo-image.yaml
     - *deploy
     - *deploy_ec2_ami
