@@ -9,6 +9,8 @@ actions:
     suite: {{ $suite }}
     components:
       - main
+      - contrib
+      - non-free
     mirror: {{ $mirror }}
     variant: minbase
 

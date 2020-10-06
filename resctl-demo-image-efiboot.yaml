@@ -38,6 +38,17 @@ actions:
   - action: unpack
     file: {{ $ospack }}.tar.gz
 
+  - action: apt
+    description: Install useful packages for baremetal
+    packages:
+      - network-manager
+      - firmware-atheros
+      - firmware-brcm80211
+      - firmware-intelwimax
+      - firmware-iwlwifi
+      - firmware-linux
+      - firmware-realtek
+
   - action: run
     description: Mount rootfs by LABEL instead of UUID
     command: |
