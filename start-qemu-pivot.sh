@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE=resctl-demo-image-legacy.img
+IMAGE=resctl-demo-image-legacyboot.img
 
 # create a second disk to pivot to
 qemu-img create -f qcow2 resctl-demo-second-disk.img 100G
