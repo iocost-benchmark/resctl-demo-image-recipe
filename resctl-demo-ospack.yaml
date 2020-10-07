@@ -187,5 +187,9 @@ actions:
     chroot: true
     command: chown -R demo:demo /home/demo
 
+  - action: run
+    description: Remove empty fstab
+    command: rm ${ROOTDIR}/etc/fstab
+
   - action: pack
     file: {{ $ospack }}.tar.gz
