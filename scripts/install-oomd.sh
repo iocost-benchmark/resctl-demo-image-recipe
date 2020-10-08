@@ -29,5 +29,8 @@ meson build && ninja -C build
 # install
 cd build && ninja install
 
+# disable oomd service
+systemctl mask oomd.service
+
 # cleanup
 cd / && rm -rf /opt/oomd
