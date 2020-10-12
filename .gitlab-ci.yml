@@ -83,7 +83,7 @@ build:
     - export IMAGE_LEGACY="resctl-demo-image-legacyboot"
     - export IMAGE_EFI="resctl-demo-image-efiboot"
     - export IMAGE_EFI_FLASHER="resctl-demo-flasher-efiboot"
-    - mkdir "out/resctl-demo-${VERSION}" && cd "out/resctl-demo-${VERSION}"
+    - mkdir -p "out/resctl-demo-${VERSION}" && cd "out/resctl-demo-${VERSION}"
     - echo ${VERSION} > version.txt
     - debos --scratchsize=16G ../../resctl-demo-ospack.yaml
     - debos -t "image:${IMAGE_LEGACY}" ../../resctl-demo-image-legacyboot.yaml
