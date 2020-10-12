@@ -8,6 +8,7 @@ RUN /usr/bin/apt-get update && \
       grub-efi-amd64 \
       openssh-client \
       python3-pip \
+      rsync \
       qemu-utils
 
 # python3-libcloud in debian/buster is outdated and does not work
