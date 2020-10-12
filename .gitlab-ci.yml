@@ -85,9 +85,9 @@ build:
     - export IMAGE_EFI_FLASHER="resctl-demo-flasher-efiboot"
     - mkdir "out/resctl-demo-${VERSION}" && cd "out/resctl-demo-${VERSION}"
     - echo ${VERSION} > version.txt
-    - debos --scratchsize=16G ../resctl-demo-ospack.yaml
-    - debos -t "image:${IMAGE_LEGACY}" ../resctl-demo-image-legacyboot.yaml
-    - debos -t "image:${IMAGE_EFI}" ../resctl-demo-image-efiboot.yaml
-    - debos -t "image:${IMAGE_EFI_FLASHER}" -t "flash_image:${IMAGE_EFI}" ../resctl-demo-flasher-efiboot.yaml
+    - debos --scratchsize=16G ../../resctl-demo-ospack.yaml
+    - debos -t "image:${IMAGE_LEGACY}" ../../resctl-demo-image-legacyboot.yaml
+    - debos -t "image:${IMAGE_EFI}" ../../resctl-demo-image-efiboot.yaml
+    - debos -t "image:${IMAGE_EFI_FLASHER}" -t "flash_image:${IMAGE_EFI}" ../../resctl-demo-flasher-efiboot.yaml
     - *deploy_ec2_ami
     - *deploy
