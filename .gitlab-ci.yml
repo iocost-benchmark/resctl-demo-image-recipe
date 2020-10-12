@@ -9,15 +9,10 @@ stages:
 .deploy_snippet: &deploy
   - >
     if [ "${CI_COMMIT_BRANCH}" == "master" ]; then
-      # move artifacts into their own directory
-      OUT="resctl-demo-${VERSION}"
-      mkdir "${OUT}"
-      mv "latest-version.txt" "${OUT}/"
-      for F in "${IMAGE_LEGACY}" "${IMAGE_EFI}" "${IMAGE_EFI_FLASHER}" ; do
-        mv "${F}.img.gz" "${OUT}/"
-        mv "${F}.img.gz.sha256" "${OUT}/"
-        mv "${F}.img.bmap" "${OUT}/"
-      done
+
+      # create symbolic link to latest version
+      cd "${CWD}"
+      ln -Tsf "resctl-demo-${VERSION}" "out/resctl-demo-latest"
 
       # install ssh key
       eval $(ssh-agent -s)
@@ -25,14 +20,15 @@ stages:
       ssh-add ${DEPLOY_SSH_KEY}
 
       # copy files to images dump
-      scp -oStrictHostKeyChecking=no -r ${OUT} facebook@images.collabora.co.uk:images/
+      rsync -a -e "ssh -oStrictHostKeyChecking=no" out/* facebook@images.collabora.co.uk:images/
     fi
 
 .deploy_ec2_ami_snippet: &deploy_ec2_ami
   - >
     if [ "${CI_COMMIT_BRANCH}" == "master" ]; then
       # upload legacyboot image to AWS
-      python3 ../aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="${IMAGE_LEGACY}.vmdk"
+      cd "${CWD}"
+      python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="out/resctl-demo-${VERSION}/${IMAGE_LEGACY}.vmdk"
     fi
 
 docker:
@@ -82,12 +78,13 @@ build:
     - xz -d linux.tar.xz
     - mv linux.tar overlays/resctl-demo/usr/local/resctl-demo
 
+    - export CWD=$(pwd)
     - export VERSION="$(date '+%Y%m%d.%H%M%S')-${CI_COMMIT_SHORT_SHA}"
-    - export IMAGE_LEGACY="resctl-demo-image-legacyboot_${VERSION}"
-    - export IMAGE_EFI="resctl-demo-image-efiboot_${VERSION}"
-    - export IMAGE_EFI_FLASHER="resctl-demo-flasher-efiboot_${VERSION}"
-    - mkdir out && cd out
-    - echo ${VERSION} > latest-version.txt
+    - export IMAGE_LEGACY="resctl-demo-image-legacyboot"
+    - export IMAGE_EFI="resctl-demo-image-efiboot"
+    - export IMAGE_EFI_FLASHER="resctl-demo-flasher-efiboot"
+    - mkdir "out/resctl-demo-${VERSION}" && cd "out/resctl-demo-${VERSION}"
+    - echo ${VERSION} > version.txt
     - debos --scratchsize=16G ../resctl-demo-ospack.yaml
     - debos -t "image:${IMAGE_LEGACY}" ../resctl-demo-image-legacyboot.yaml
     - debos -t "image:${IMAGE_EFI}" ../resctl-demo-image-efiboot.yaml
