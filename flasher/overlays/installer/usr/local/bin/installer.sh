@@ -64,19 +64,23 @@ if [ ${BMAP_EXITCODE} != 0 ] ; then
   shutdown -h now
 fi
 
+# Fix GPT to take the full size
+echo fix | parted ---pretend-input-tty ${CHOICE} print
+
 # Expand rootfs partition table
 ROOTFS_PART_NO=2
-ROOTFS_PART="${CHOICE}${ROOTFS_PART_NO}"
+ROOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "${ROOTFS_PART_NO}p")
+echo "Expanding ${ROOTFS_PART}"
 parted -s ${CHOICE} resizepart ${ROOTFS_PART_NO} 100%
-partprobe
+
+# Reload partition table
+udevadm  trigger --settle "${CHOICE}"
 
 # Expand rootfs
 ROOTFS_MNT="/mnt/rootfs"
 mkdir -p ${ROOTFS_MNT}
 mount ${ROOTFS_PART} ${ROOTFS_MNT}
 btrfs filesystem resize max ${ROOTFS_MNT}
-#e2fsck -f -p ${ROOT_PART} || true
-#resize2fs ${ROOT_PART}
 
 # Install lockfile inside rootfs to disable pivot on first boot
 touch ${ROOTFS_MNT}/etc/resctl-demo/PIVOT_COMPLETE
