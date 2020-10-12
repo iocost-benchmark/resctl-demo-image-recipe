@@ -12,6 +12,8 @@ stages:
 
       # create symbolic link to latest version
       cd "${CWD}"
+      mkdir "out/resctl-demo-${VERSION}"
+      mv out/* out/resctl-demo-${VERSION}/
       ln -Tsf "resctl-demo-${VERSION}" "out/resctl-demo-latest"
 
       # install ssh key
@@ -28,7 +30,7 @@ stages:
     if [ "${CI_COMMIT_BRANCH}" == "master" ]; then
       # upload legacyboot image to AWS
       cd "${CWD}"
-      python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="out/resctl-demo-${VERSION}/${IMAGE_LEGACY}.vmdk"
+      python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="out/${IMAGE_LEGACY}.vmdk"
     fi
 
 docker:
@@ -83,11 +85,11 @@ build:
     - export IMAGE_LEGACY="resctl-demo-image-legacyboot"
     - export IMAGE_EFI="resctl-demo-image-efiboot"
     - export IMAGE_EFI_FLASHER="resctl-demo-flasher-efiboot"
-    - mkdir -p "out/resctl-demo-${VERSION}" && cd "out/resctl-demo-${VERSION}"
+    - mkdir out && cd out
     - echo ${VERSION} > version.txt
-    - debos --scratchsize=16G ../../resctl-demo-ospack.yaml
-    - debos -t "image:${IMAGE_LEGACY}" ../../resctl-demo-image-legacyboot.yaml
-    - debos -t "image:${IMAGE_EFI}" ../../resctl-demo-image-efiboot.yaml
-    - debos -t "image:${IMAGE_EFI_FLASHER}" -t "flash_image:${IMAGE_EFI}" ../../resctl-demo-flasher-efiboot.yaml
+    - debos --scratchsize=16G ../resctl-demo-ospack.yaml
+    - debos -t "image:${IMAGE_LEGACY}" ../resctl-demo-image-legacyboot.yaml
+    - debos -t "image:${IMAGE_EFI}" ../resctl-demo-image-efiboot.yaml
+    - debos -t "image:${IMAGE_EFI_FLASHER}" -t "flash_image:${IMAGE_EFI}" ../resctl-demo-flasher-efiboot.yaml
     - *deploy_ec2_ami
     - *deploy
