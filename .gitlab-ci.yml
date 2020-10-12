@@ -12,9 +12,9 @@ stages:
 
       # create symbolic link to latest version
       cd "${CWD}"
-      mkdir "out/resctl-demo-${VERSION}"
-      mv out/* out/resctl-demo-${VERSION}/
-      ln -Tsf "resctl-demo-${VERSION}" "out/resctl-demo-latest"
+      mkdir "resctl-demo-${VERSION}"
+      mv out/* resctl-demo-${VERSION}/
+      ln -Tsf "resctl-demo-${VERSION}" "resctl-demo-latest"
 
       # install ssh key
       eval $(ssh-agent -s)
@@ -22,7 +22,7 @@ stages:
       ssh-add ${DEPLOY_SSH_KEY}
 
       # copy files to images dump
-      rsync -a -e "ssh -oStrictHostKeyChecking=no" out/* facebook@images.collabora.co.uk:images/
+      rsync -a -e "ssh -oStrictHostKeyChecking=no" resctl-demo-* facebook@images.collabora.co.uk:images/
     fi
 
 .deploy_ec2_ami_snippet: &deploy_ec2_ami
