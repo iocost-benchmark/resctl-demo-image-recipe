@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
 FLASHER_IMG="resctl-demo-flasher-efiboot.img"
-ROOT_IMG="resctl-demo-flasher-efiboot-testroot.img"
+ROOT1_IMG="resctl-demo-flasher-efiboot-testroot1.img"
+ROOT2_IMG="resctl-demo-flasher-efiboot-testroot2.img"
 
 # create a disk to install to
-qemu-img create -f qcow2 ${ROOT_IMG} 100G
+qemu-img create -f qcow2 ${ROOT1_IMG} 50G
+qemu-img create -f qcow2 ${ROOT2_IMG} 50G
 
 qemu-system-x86_64 \
   -machine type=q35,accel=kvm \
@@ -15,7 +17,8 @@ qemu-system-x86_64 \
   -device virtio-scsi-pci,id=scsi0 \
   -drive file=${FLASHER_IMG},if=none,format=raw,id=flasher -device scsi-hd,drive=flasher,bus=scsi0.0 \
   -device virtio-scsi-pci,id=scsi1 \
-  -drive file=${ROOT_IMG},if=none,format=qcow2,discard=unmap,aio=native,cache=none,id=testroot -device scsi-hd,drive=testroot,bus=scsi1.0 \
+  -drive file=${ROOT1_IMG},if=none,format=qcow2,discard=unmap,aio=native,cache=none,id=testroot1 -device scsi-hd,drive=testroot1,bus=scsi1.0 \
+  -drive file=${ROOT2_IMG},if=none,format=qcow2,discard=unmap,aio=native,cache=none,id=testroot2 -device nvme,drive=testroot2,serial=1234 \
   -boot menu=on \
   -vga qxl \
   -serial stdio \
