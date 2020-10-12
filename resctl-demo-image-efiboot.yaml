@@ -62,6 +62,12 @@ actions:
     script: scripts/setup-bootloader.sh "x86_64-efi" "{{ $cmdline }}"
 
   - action: run
+    description: Setup demo for EFI image
+    label: setup-demo-efi.sh
+    chroot: true
+    script: scripts/setup-demo-efi.sh
+
+  - action: run
     description: Examine disk size
     chroot: true
     command: df -h / /boot/efi
