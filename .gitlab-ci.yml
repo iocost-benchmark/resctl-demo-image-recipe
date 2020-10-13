@@ -16,6 +16,9 @@ stages:
       mv out/* resctl-demo-${VERSION}/
       ln -Tsf "resctl-demo-${VERSION}" "resctl-demo-latest"
 
+      # remove un-needed files
+      rm -f resctl-demo-*.yaml resctl-demo-${VERSION}/*.img
+
       # install ssh key
       eval $(ssh-agent -s)
       chmod 0600 ${DEPLOY_SSH_KEY}
