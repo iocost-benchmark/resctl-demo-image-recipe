@@ -8,7 +8,7 @@ stages:
 
 .deploy_snippet: &deploy
   - >
-    if [ "${CI_COMMIT_BRANCH}" == "master" ] || [ "${CI_BUILD_REF_NAME}" == "${CI_COMMIT_TAG}"]; then
+    if [[ "${CI_COMMIT_BRANCH}" == "master" || "${CI_BUILD_REF_NAME}" == "${CI_COMMIT_TAG}" ]] ; then
 
       # create symbolic link to latest version
       cd "${CWD}"
@@ -17,7 +17,7 @@ stages:
       ln -Tsf "resctl-demo-${VERSION}" "resctl-demo-latest"
 
       # create symbolic link to commit tag
-      if [ ! -z "${CI_COMMIT_TAG}" ]; then
+      if [ ! -z "${CI_COMMIT_TAG}" ] ; then
         ln -Tsf "resctl-demo-${VERSION}" "resctl-demo-${CI_COMMIT_TAG}"
       fi
 
@@ -35,7 +35,7 @@ stages:
 
 .deploy_ec2_ami_snippet: &deploy_ec2_ami
   - >
-    if [ "${CI_COMMIT_BRANCH}" == "master" ] || [ "${CI_BUILD_REF_NAME}" == "${CI_COMMIT_TAG}"]; then
+    if [[ "${CI_COMMIT_BRANCH}" == "master" || "${CI_BUILD_REF_NAME}" == "${CI_COMMIT_TAG}" ]] ; then
       # upload legacyboot image to AWS
       cd "${CWD}"
       python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="out/${IMAGE_LEGACY}.vmdk"
