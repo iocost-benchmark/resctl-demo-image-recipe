@@ -44,8 +44,29 @@ if [ ! "$(lsblk -ln --nodeps -o PATH | wc -l)" -gt "1" ] ; then
   exit 0
 fi
 
+
+# find the drive for root
+OLDROOT=$(findmnt -n -o SOURCE /)
+NEWROOT=""
+for DEV_PATH in $(lsblk -n -d -o PATH); do
+  # do not try to install to oldroot
+  [ "${DEV_PATH}" == "${OLDROOT}" ] && continue
+
+  # newroot should be the last drive found
+  NEWROOT=${DEV_PATH}
+done
+
+# print some debug information
+echo "Debug information"
+lsblk
+echo "OLDROOT=${OLDROOT}"
+echo "NEWROOT=${NEWROOT}"
+
 # find the nvme
-NEWROOT=$(lsblk -ln --nodeps -o PATH | sed -n 2p)
+if [ "${NEWROOT}" == "" ] ; then
+  echo "error; no nvme found"
+  exit 1
+fi
 echo "pivoting to ${NEWROOT}"
 
 # format nvme (already partitioned on AWS)
