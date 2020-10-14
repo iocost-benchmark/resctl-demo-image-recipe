@@ -51,6 +51,9 @@ echo "pivoting to ${NEWROOT}"
 # format nvme (already partitioned on AWS)
 mkfs.btrfs ${NEWROOT}
 
+# reload partition table
+udevadm  trigger --settle ${NEWROOT}
+
 # mount nvme
 mount ${NEWROOT} /mnt
 
@@ -59,7 +62,7 @@ btrfs filesystem label / old_system
 btrfs filesystem label /mnt system
 
 # untar ospack to newroot
-tar xzf /resctl-demo-root.tar.gz --xattrs --xattrs-include=*.* -C /mnt
+tar xzf /resctl-demo-root.tar.gz --xattrs --xattrs-include=*.* -C /mnt 2>/dev/null
 
 # copy /etc/fstab to newroot
 cp /etc/fstab /mnt/etc/fstab
