@@ -38,7 +38,7 @@ stages:
     if [ "${CI_COMMIT_BRANCH}" = "$CI_DEFAULT_BRANCH" -o "${CI_BUILD_REF_NAME}" = "${CI_COMMIT_TAG}" ] ; then
       # upload legacyboot image to AWS
       cd "${CWD}"
-      python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bullseye/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="out/${IMAGE_LEGACY}.vmdk"
+      python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bookworm/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="out/${IMAGE_LEGACY}.vmdk"
     fi
 
 docker:

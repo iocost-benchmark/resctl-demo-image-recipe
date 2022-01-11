@@ -1,5 +1,5 @@
 {{ $mirror := or .mirror "https://deb.debian.org/debian" }}
-{{ $suite := or .suite "bullseye"}}
+{{ $suite := or .suite "bookworm"}}
 {{ $image := or .image "resctl-demo-flasher-efiboot" }}
 {{ $flash_image := or .flash_image "resctl-demo-image-efiboot" }}
 
