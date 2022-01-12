@@ -18,31 +18,25 @@ actions:
     description: Core packages
     packages:
       - apt-transport-https
+      - gnupg
       - initramfs-tools
       - sudo
       - systemd-sysv
       - udev
 
-# install custom linux-image package
   - action: overlay
-    description: Copy custom packages
-    source: debs
+    description: Collabora repository
+    source: overlays/facebook-repository
 
   - action: run
-    description: Install custom packages
     chroot: true
-    command: dpkg -i /*.deb ; rm -rf /*.deb
+    description: Add Collabora repository signature
+    command: apt-key --keyring /etc/apt/trusted.gpg.d/collabora.gpg add /collabora-archive-keyring.asc && rm /collabora-archive-keyring.asc
 
-  - action: run
-    description: Install dependencies for custom packages
-    chroot: true
-    command: apt-get install -f --yes
-
-  - action: run
-    description: Mark custom packages as hold
-    chroot: true
-    command: apt-mark hold linux* resctl-demo
-# </install custom packages>
+  - action: apt
+    description: Install packages from Collabora repository
+    packages:
+      - resctl-demo
 
   - action: apt
     description: Networking packages

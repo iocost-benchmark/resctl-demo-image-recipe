@@ -1,7 +1,3 @@
-variables:
-  CI_PROJECT_ID_PKG_LINUX: 2491
-  CI_PROJECT_ID_PKG_RESCTL_DEMO: 2482
-
 stages:
   - docker
   - build
@@ -77,12 +73,6 @@ build:
     - kvm
   stage: build
   script:
-    - echo "Downloading packages from CI"
-    - 'curl --location --output pkg-linux.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.collabora.com/api/v4/projects/${CI_PROJECT_ID_PKG_LINUX}/jobs/artifacts/debian/master/download?job=build"'
-    - 'curl --location --output pkg-resctl-demo.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.collabora.com/api/v4/projects/${CI_PROJECT_ID_PKG_RESCTL_DEMO}/jobs/artifacts/debian/master/download?job=build"'
-    - unzip \*.zip && rm *.zip
-    - mv artifacts/ debs/
-
     - echo "Downloading linux payload"
     - 'curl --location --output linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.8.11.tar.xz"'
     - xz -d linux.tar.xz
