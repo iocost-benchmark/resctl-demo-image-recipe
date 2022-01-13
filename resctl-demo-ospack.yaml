@@ -184,6 +184,19 @@ actions:
     description: Configuration for resctl-demo
     source: overlays/resctl-demo
 
+  - action: download
+    description: Download linux payload tarball
+    url: https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.8.11.tar.xz
+    name: linux-payload
+    filename: linux.tar
+    compression: xz
+
+  - action: overlay
+    description: Copy linux payload tarball into image
+    origin: linux-payload
+    #source: linux.tar
+    destination: /usr/local/resctl-demo/linux.tar
+
   - action: run
     description: Fix demo user home permissions
     chroot: true

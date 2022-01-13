@@ -75,11 +75,6 @@ build:
     - kvm
   stage: build
   script:
-    - echo "Downloading linux payload"
-    - 'curl --location --output linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.8.11.tar.xz"'
-    - xz -d linux.tar.xz
-    - mv linux.tar overlays/resctl-demo/usr/local/resctl-demo
-
     - export CWD=$(pwd)
     - export VERSION="${CI_BUILD_REF_NAME}-$(date '+%Y%m%d.%H%M%S')-${CI_COMMIT_SHORT_SHA}"
     - export IMAGE_LEGACY="resctl-demo-image-legacyboot"
