@@ -43,6 +43,7 @@ actions:
     description: Kernel packages
     packages:
       - linux-image-amd64
+      - linux-headers-amd64
 
   - action: apt
     description: Networking packages
