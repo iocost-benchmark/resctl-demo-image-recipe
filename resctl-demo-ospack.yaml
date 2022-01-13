@@ -40,6 +40,11 @@ actions:
       - resctl-demo
 
   - action: apt
+    description: Kernel packages
+    packages:
+      - linux-image-amd64
+
+  - action: apt
     description: Networking packages
     packages:
       - iproute2
