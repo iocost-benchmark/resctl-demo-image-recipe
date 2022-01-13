@@ -36,6 +36,7 @@ actions:
   - action: apt
     description: Install packages from Collabora repository
     packages:
+      - oomd
       - resctl-demo
 
   - action: apt
@@ -102,9 +103,9 @@ actions:
     command: pip3 install drgn
 
   - action: run
-    description: Install oomd from source
+    description: Disable oomd
     chroot: true
-    script: scripts/install-oomd.sh
+    command: systemctl mask oomd.service
 
   - action: run
     description: Set hostname
