@@ -49,6 +49,9 @@ echo "Installing resctl-demo to ${CHOICE}; do not turn your computer off."
 echo "You will be prompted to restart your computer after installation."
 echo ""
 
+# Discard used blocks on EMMC
+blkdiscard ${CHOICE}
+
 bmaptool \
   copy \
   ${FLASHER_STORAGE_MNT}/resctl-demo-image.img.gz \
@@ -67,6 +70,9 @@ fi
 # Fix GPT to take the full size
 echo fix | parted ---pretend-input-tty ${CHOICE} print
 
+# Reload partition table
+udevadm trigger --settle "${CHOICE}"
+
 # Expand rootfs partition table
 ROOTFS_PART_NO=2
 ROOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "${ROOTFS_PART_NO}p")
@@ -74,7 +80,10 @@ echo "Expanding ${ROOTFS_PART}"
 parted -s ${CHOICE} resizepart ${ROOTFS_PART_NO} 100%
 
 # Reload partition table
-udevadm  trigger --settle "${CHOICE}"
+udevadm trigger --settle "${CHOICE}"
+
+# Regenerate btrfs fsid
+btrfstune -m ${ROOTFS_PART}
 
 # Expand rootfs
 ROOTFS_MNT="/mnt/rootfs"
