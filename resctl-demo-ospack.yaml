@@ -18,6 +18,7 @@ actions:
     description: Core packages
     packages:
       - apt-transport-https
+      - dbus
       - gnupg
       - initramfs-tools
       - sudo
