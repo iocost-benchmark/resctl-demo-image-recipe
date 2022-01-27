@@ -50,7 +50,7 @@ echo "You will be prompted to restart your computer after installation."
 echo ""
 
 # Discard used blocks on EMMC
-blkdiscard ${CHOICE}
+blkdiscard -f ${CHOICE}
 
 bmaptool \
   copy \
