@@ -71,7 +71,7 @@ fi
 echo fix | parted ---pretend-input-tty ${CHOICE} print
 
 # Reload partition table
-udevadm trigger --settle "${CHOICE}"
+partprobe "${CHOICE}"
 
 # Expand rootfs partition table
 ROOTFS_PART_NO=2
@@ -80,15 +80,37 @@ echo "Expanding ${ROOTFS_PART}"
 parted -s ${CHOICE} resizepart ${ROOTFS_PART_NO} 100%
 
 # Reload partition table
-udevadm trigger --settle "${CHOICE}"
+partprobe "${CHOICE}"
 
 # Regenerate btrfs fsid
+ROOTFS_BLKID_OLD=$(blkid -s UUID -o value ${ROOTFS_PART})
 btrfstune -m ${ROOTFS_PART}
 
-# Expand rootfs
+# Reload partition table
+partprobe "${CHOICE}"
+
+# Get the new fsid
+ROOTFS_BLKID_NEW=$(blkid -s UUID -o value ${ROOTFS_PART})
+
+# Mount rootfs
 ROOTFS_MNT="/mnt/rootfs"
 mkdir -p ${ROOTFS_MNT}
 mount ${ROOTFS_PART} ${ROOTFS_MNT}
+
+# Update fsid in grub configuration
+sed -i "s/$ROOTFS_BLKID_OLD/$ROOTFS_BLKID_NEW/g" "$ROOTFS_MNT/boot/grub/grub.cfg"
+
+# Update fsid in /etc/default/grub
+sed -i "s/LABEL=system/UUID=$ROOTFS_BLKID_NEW/g" "$ROOTFS_MNT/etc/default/grub"
+
+# Update fsid in /etc/fstab
+sed -i "s/LABEL=system/UUID=$ROOTFS_BLKID_NEW/g" "$ROOTFS_MNT/etc/fstab"
+
+# Fix /etc/kernel/cmdline
+sed -i "s/UUID=$ROOTFS_BLKID_OLD/UUID=$ROOTFS_BLKID_NEW/g" "$ROOTFS_MNT/etc/kernel/cmdline"
+sed -i "s/LABEL=system//g" "$ROOTFS_MNT/etc/kernel/cmdline"
+
+# Expand rootfs
 btrfs filesystem resize max ${ROOTFS_MNT}
 
 # Install lockfile inside rootfs to disable pivot on first boot
