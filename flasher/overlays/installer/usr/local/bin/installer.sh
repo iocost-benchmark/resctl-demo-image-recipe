@@ -34,7 +34,22 @@ CHOICE_EXITCODE=$?
 clear
 
 # quit
-if [ ${CHOICE_EXITCODE} == 1 ] || [ "${CHOICE}" == "cancel" ] ; then
+if [ ${CHOICE_EXITCODE} = 1 ] || [ "${CHOICE}" = "cancel" ] ; then
+  echo "Operation cancelled by user."
+  read -p "Press return to shutdown your computer..."
+  shutdown -h now
+fi
+
+
+dialog --clear \
+  --backtitle "resctl-demo installer" \
+  --title "Choose disk to install resctl-demo" \
+  --defaultno \
+  --yesno "You have chosen to install resctl-demo to $CHOICE\n\nWARNING: the disk will be overwritten! Choose no to cleanly exit." \
+  20 0
+CHOICE_EXITCODE=$?
+
+if [ ${CHOICE_EXITCODE} != 0 ] ; then
   echo "Operation cancelled by user."
   read -p "Press return to shutdown your computer..."
   shutdown -h now
