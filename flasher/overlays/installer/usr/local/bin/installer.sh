@@ -64,11 +64,9 @@ echo "Installing resctl-demo to ${CHOICE}; do not turn your computer off."
 echo "You will be prompted to restart your computer after installation."
 echo ""
 
-# Discard used blocks on EMMC
-blkdiscard -f ${CHOICE}
-
 bmaptool \
   copy \
+  --nobmap \
   ${FLASHER_STORAGE_MNT}/resctl-demo-image.img.gz \
   ${CHOICE}
 BMAP_EXITCODE=$?
