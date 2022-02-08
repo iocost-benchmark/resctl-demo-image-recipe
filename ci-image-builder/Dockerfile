@@ -4,9 +4,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN /usr/bin/apt-get update && \
     /usr/bin/apt-get -y --no-install-recommends install \
       curl \
-      efibootmgr \
-      grub-efi-amd64 \
-      openssh-client \
       python3-pip \
       rsync \
       qemu-utils
