@@ -1,7 +1,7 @@
 {{ $ospack := or .ospack "resctl-demo-ospack" }}
 {{ $image := or .image "resctl-demo-image-efiboot" }}
 {{ $imagesize := or .imagesize "32GB" }}
-{{ $cmdline := or .cmdline "root=LABEL=system console=tty0 console=ttyS0,115200n1 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
+{{ $cmdline := or .cmdline "console=tty0 console=ttyS0,115200n1 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
 
 architecture: amd64
 
@@ -49,17 +49,24 @@ actions:
       - firmware-linux
       - firmware-realtek
 
-  - action: run
-    description: Mount rootfs by LABEL instead of UUID
-    command: |
-      UUID=$(blkid "${IMAGE}-part2" -o export | grep "^UUID=")
-      sed -i "s/${UUID}/LABEL=system/g" ${ROOTDIR}/etc/fstab
+  - action: overlay
+    description: Configuration for systemd-boot
+    source: overlays/systemd-boot
 
   - action: run
-    description: Setup bootloader
-    label: setup-bootloader.sh
+    description: Install systemd-boot
     chroot: true
-    script: scripts/setup-bootloader.sh "x86_64-efi" "{{ $cmdline }}"
+    command: bootctl install --path=/boot/efi
+
+  - action: run
+    description: Create loader entries directory
+    chroot: true
+    command: mkdir -p /boot/efi/$(cat /etc/machine-id)
+
+  - action: run
+    description: Install systemd-boot for kernel
+    chroot: true
+    command: kernel-install add $(ls /usr/lib/modules | head -1) /boot/vmlinuz* /boot/initrd*
 
   - action: run
     description: Setup demo for EFI image
