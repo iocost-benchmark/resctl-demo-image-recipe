@@ -19,7 +19,6 @@ actions:
     packages:
       - systemd-sysv
       - udev
-      - grub-efi-amd64
       - linux-image-amd64
       - bmap-tools
       - efibootmgr

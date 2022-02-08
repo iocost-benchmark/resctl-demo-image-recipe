@@ -81,55 +81,61 @@ if [ ${BMAP_EXITCODE} != 0 ] ; then
 fi
 
 # Fix GPT to take the full size
+sleep 10
 echo fix | parted ---pretend-input-tty ${CHOICE} print
+sync
+sleep 10
 
-# Reload partition table
-partprobe "${CHOICE}"
+ROOTFS_PART_NO=2
+BOOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "1p")
+ROOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "${ROOTFS_PART_NO}p")
 
 # Expand rootfs partition table
-ROOTFS_PART_NO=2
-ROOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "${ROOTFS_PART_NO}p")
-echo "Expanding ${ROOTFS_PART}"
+echo "Expanding root partition ${ROOTFS_PART}"
 parted -s ${CHOICE} resizepart ${ROOTFS_PART_NO} 100%
-
-# Reload partition table
-partprobe "${CHOICE}"
+sync
+sleep 10
 
 # Regenerate btrfs fsid
 ROOTFS_BLKID_OLD=$(blkid -s UUID -o value ${ROOTFS_PART})
+echo "Old blkid $ROOTFS_BLKID_OLD"
 btrfstune -m ${ROOTFS_PART}
-
-# Reload partition table
-partprobe "${CHOICE}"
+sync
+sleep 10
 
 # Get the new fsid
 ROOTFS_BLKID_NEW=$(blkid -s UUID -o value ${ROOTFS_PART})
+echo "New blkid $ROOTFS_BLKID_NEW"
 
 # Mount rootfs
 ROOTFS_MNT="/mnt/rootfs"
 mkdir -p ${ROOTFS_MNT}
 mount ${ROOTFS_PART} ${ROOTFS_MNT}
 
-# Update fsid in grub configuration
-sed -i "s/$ROOTFS_BLKID_OLD/$ROOTFS_BLKID_NEW/g" "$ROOTFS_MNT/boot/grub/grub.cfg"
-
-# Update fsid in /etc/default/grub
-sed -i "s/LABEL=system/UUID=$ROOTFS_BLKID_NEW/g" "$ROOTFS_MNT/etc/default/grub"
-
-# Update fsid in /etc/fstab
-sed -i "s/LABEL=system/UUID=$ROOTFS_BLKID_NEW/g" "$ROOTFS_MNT/etc/fstab"
-
-# Fix /etc/kernel/cmdline
-sed -i "s/UUID=$ROOTFS_BLKID_OLD/UUID=$ROOTFS_BLKID_NEW/g" "$ROOTFS_MNT/etc/kernel/cmdline"
-sed -i "s/LABEL=system//g" "$ROOTFS_MNT/etc/kernel/cmdline"
-
 # Expand rootfs
 btrfs filesystem resize max ${ROOTFS_MNT}
+sync
+sleep 10
+
+# Mount boot
+BOOTFS_MNT="${ROOTFS_MNT}/boot/efi"
+mkdir -p ${BOOTFS_MNT}
+mount ${BOOTFS_PART} ${BOOTFS_MNT}
+
+# Update fsid in systemd-boot configuration
+sed -i "s/$ROOTFS_BLKID_OLD/$ROOTFS_BLKID_NEW/g" $BOOTFS_MNT/loader/entries/*.conf
+
+# Update fsid in /etc/fstab
+sed -i "s/$ROOTFS_BLKID_OLD/$ROOTFS_BLKID_NEW/g" $ROOTFS_MNT/etc/fstab
+
+# Fix /etc/kernel/cmdline
+sed -i "s/$ROOTFS_BLKID_OLD/$ROOTFS_BLKID_NEW/g" $ROOTFS_MNT/etc/kernel/cmdline
 
 # Install lockfile inside rootfs to disable pivot on first boot
 touch ${ROOTFS_MNT}/etc/resctl-demo/PIVOT_COMPLETE
 
 # Unmount rootfs
+umount ${BOOTFS_PART}
 umount ${ROOTFS_PART}
 sync
 

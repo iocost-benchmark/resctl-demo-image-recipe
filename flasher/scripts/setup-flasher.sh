@@ -7,46 +7,31 @@
 set -e
 set -u
 
-# Install GRUB2 to ESP
-GRUB_TARGET="x86_64-efi"
-grub-install \
-  --directory="${ROOTDIR}/usr/lib/grub/${GRUB_TARGET}" \
-  --target="${GRUB_TARGET}" \
-  --locale-directory="${ROOTDIR}/usr/share/locale" \
-  --boot-directory="${IMAGEMNTDIR}/boot" \
-  --efi-directory="${IMAGEMNTDIR}" \
-  "${IMAGE}"
+cd ${IMAGEMNTDIR}
 
-# Use GRUB2 as default bootloader
-mkdir -p "${IMAGEMNTDIR}/EFI/boot"
-cp "${IMAGEMNTDIR}/EFI/grub/grubx64.efi" "${IMAGEMNTDIR}/EFI/boot/bootx64.efi"
+# Install systemd-boot
+mkdir -p EFI/BOOT
+cp ${ROOTDIR}/usr/lib/systemd/boot/efi/systemd-bootx64.efi EFI/BOOT/BOOTX64.EFI
 
-# Create basic GRUB2 menu
-ROOT_UUID=$(blkid "${IMAGE}-part1" -s UUID -o value)
-cat << EOF > ${IMAGEMNTDIR}/boot/grub/grub.cfg
-insmod all_video
-insmod gfxterm
+mkdir -p EFI/systemd
+cp ${ROOTDIR}/usr/lib/systemd/boot/efi/systemd-bootx64.efi EFI/systemd/systemd-bootx64.efi
 
-menuentry 'Install resctl-demo' --id resctl-demo-flasher {
-  search --set=root --fs-uuid ${ROOT_UUID} --hint hd0,msdos2
-  linux /vmlinuz root=/dev/ram0 rootfstype=ramfs console=tty0 console=ttyS0 quiet loglevel=3 systemd.unit=installer.target
-  initrd /initramfs.cpio.gz
-}
+mkdir -p loader/entries
 
-menuentry 'Reboot' {
-  reboot
-}
+cat << EOF > loader/loader.conf
+timeout 60
+default *
+EOF
 
-menuentry 'Shutdown' {
-  halt
-}
-
-default=resctl-demo-flasher
-timeout=10
+cat << EOF > loader/entries/flasher.conf
+title resctl-demo flasher
+linux /linux
+initrd /initramfs.cpio.gz
+options root=/dev/ram0 console=ttyS0,115200n8 console=tty0 systemd.unit=installer.target systemd.show_status quiet
 EOF
 
 # Copy kernel
-cp ${ROOTDIR}/boot/vmlinuz* ${IMAGEMNTDIR}/vmlinuz
+cp ${ROOTDIR}/boot/vmlinuz* linux
 
 # Create initramfs from container contents
 cd ${ROOTDIR}
