@@ -19,8 +19,8 @@ cp ${ROOTDIR}/usr/lib/systemd/boot/efi/systemd-bootx64.efi EFI/systemd/systemd-b
 mkdir -p loader/entries
 
 cat << EOF > loader/loader.conf
-timeout 60
-default *
+timeout 10
+default resctl-demo flasher
 EOF
 
 cat << EOF > loader/entries/flasher.conf
