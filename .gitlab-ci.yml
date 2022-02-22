@@ -1,3 +1,6 @@
+variables:
+  CI_PROJECT_ID_PKG_LINUX: 2491
+
 stages:
   - docker
   - build
@@ -80,6 +83,12 @@ build:
     - export IMAGE_LEGACY="resctl-demo-image-legacyboot"
     - export IMAGE_EFI="resctl-demo-image-efiboot"
     - export IMAGE_EFI_FLASHER="resctl-demo-flasher-efiboot"
+
+    - echo "Downloading packages from CI"
+    - 'curl --location --output pkg-linux.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.collabora.com/api/v4/projects/${CI_PROJECT_ID_PKG_LINUX}/jobs/artifacts/debian/master/download?job=build"'
+    - unzip \*.zip && rm *.zip
+    - mv artifacts/ debs/
+
     - mkdir out && cd out
     - echo ${VERSION} > version.txt
     - debos --scratchsize=16G ../resctl-demo-ospack.yaml
