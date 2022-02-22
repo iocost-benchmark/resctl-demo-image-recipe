@@ -97,3 +97,8 @@ build:
     - debos -t "image:${IMAGE_EFI_FLASHER}" -t "flash_image:${IMAGE_EFI}" ../resctl-demo-flasher-efiboot.yaml
     - *deploy_ec2_ami
     - *deploy
+  artifacts:
+    paths:
+      - out/*.img.gz
+      - out/*.img.gz.sha256
+    expire_in: 1 week
