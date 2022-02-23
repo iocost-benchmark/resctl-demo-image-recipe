@@ -1,42 +1,19 @@
-# Run resctl-demo on local machine
-WARNING: Booting this image and following the prompts may remove all of your personal data.
-
-Copy the flasher image available from [images.collabora.com](https://images.collabora.com/facebook/)
-to a USB stick with a size at least 16GB:
-
-    $ bmaptool copy https://images.collabora.com/facebook/resctl-demo-latest/resctl-demo-flasher-efiboot.img.gz /dev/sda
-
-Or you may copy the image directly without using bmaptool:
-
-    $ wget https://images.collabora.com/facebook/resctl-demo-latest/resctl-demo-flasher-efiboot.img.gz
-    $ gunzip resctl-demo-flasher-efiboot.img.gz
-    $ dd if=resctl-demo-flasher.img of=/dev/sda bs=8M status=progress
-
-
-Boot the USB stick using EFI, a screen will ask which drive to install the OS to.
-
-If the flasher fails, you may use `Ctrl+Alt+F2` to get to a console, with the
-credentials being `root:root`.
-
-Once complete, you may remove the USB stick and reboot into the resctl-demo
-environment.
-
-
-
-
 # resctl-demo-image-recipe
-The recipes will build the Debian-based image for the resctl-demo.
+The recipes will build the Debian-based image for the resctl-demo. The following
+documentation explains how to build the images, the documentation to deploy
+prebuilt images to a disk is contained in a seperate file [DEPLOY.md](DEPLOY.md).
 
-# Run resctl-demo on AWS EC2 cloud machine
+
+## Run resctl-demo on AWS EC2 cloud machine
 See the document [launch AWS EC2 instance](docs/aws-ec2-create-instance/README.md)
 to launch an AWS instance.
 
 
 ## Image downloads
 The images built using the CI pipeline on the default branch can be downloaded
-from [images.collabora.com](https://images.collabora.com/facebook/). Credentials
-can be obtained from the project's Tech Lead. These images are also uploaded and
-converted to AWS using the Amazon secrets provided by the customer.
+from [images.collabora.com](https://images.collabora.com/facebook/). These images
+are also uploaded and converted to AWS using the Amazon secrets provided by the
+customer.
 
 
 # General image information
