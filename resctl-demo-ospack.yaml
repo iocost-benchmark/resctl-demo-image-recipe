@@ -1,5 +1,5 @@
 {{ $mirror := or .mirror "https://deb.debian.org/debian" }}
-{{ $suite := or .suite "bookworm"}}
+{{ $suite := or .suite "bookworm" }}
 {{ $ospack := or .ospack "resctl-demo-ospack" }}
 
 architecture: amd64
