@@ -82,6 +82,7 @@ actions:
     description: Useful userspace packages
     packages:
       - atop
+      - bc
       - bcc
       - curl
       - fish
