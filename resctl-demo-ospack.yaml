@@ -204,7 +204,7 @@ actions:
 
   - action: download
     description: Download linux payload tarball
-    url: https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.8.11.tar.xz
+    url: https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.16.11.tar.xz
     name: linux-payload
     filename: linux.tar
     compression: xz
