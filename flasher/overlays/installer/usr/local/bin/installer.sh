@@ -17,43 +17,49 @@ for DEV_PATH in $(lsblk -n -d -o PATH); do
   CHOICES+=("${DEV_PATH}" "${DEV_INFO}")
 done
 
-# add cancel choice
-CHOICES+=("cancel" "Cancel")
+# add extra choices
+CHOICES+=("quit" "Quit (Shutdown Machine without modifications)")
 
-# show choice dialog
-CHOICE=$(dialog \
-  --clear \
-  --backtitle "resctl-demo installer" \
-  --title "Choose disk to install resctl-demo" \
-  --menu "WARNING: the disk will be overwritten! Choose cancel to cleanly exit." \
-  0 0 \
-  10 \
-  "${CHOICES[@]}" \
-  2>&1 >/dev/tty)
-CHOICE_EXITCODE=$?
-clear
+# show choice dialog - loop until user confirms
+while : ; do
+  CHOICE=$(dialog \
+    --clear \
+    --backtitle "resctl-demo installer" \
+    --title "Choose disk to install resctl-demo" \
+    --menu "WARNING: the disk will be overwritten! Choose Quit to cleanly exit." \
+    0 0 \
+    10 \
+    "${CHOICES[@]}" \
+    2>&1 >/dev/tty)
 
-# quit
-if [ ${CHOICE_EXITCODE} = 1 ] || [ "${CHOICE}" = "cancel" ] ; then
-  echo "Operation cancelled by user."
-  read -p "Press return to shutdown your computer..."
-  shutdown -h now
-fi
+  # if the user cancels by mistake, show the dialog again
+  CHOICE_EXITCODE=$?
+  if [ $CHOICE_EXITCODE = 1 ] ; then
+    continue
+  fi
 
+  # if the user quits, then really shutdown
+  if [ "${CHOICE}" = "quit" ] ; then
+    echo "Operation cancelled by user."
+    sleep 20
+    shutdown -h now
+  fi
 
-dialog --clear \
-  --backtitle "resctl-demo installer" \
-  --title "Choose disk to install resctl-demo" \
-  --defaultno \
-  --yesno "You have chosen to install resctl-demo to $CHOICE\n\nWARNING: the disk will be overwritten! Choose no to cleanly exit." \
-  20 0
-CHOICE_EXITCODE=$?
+  # confirm
+  dialog --clear \
+    --backtitle "resctl-demo installer" \
+    --title "Choose disk to install resctl-demo" \
+    --defaultno \
+    --yesno "You have chosen to install resctl-demo to $CHOICE\n\nWARNING: the disk will be overwritten! Choose no to go back to the main menu." \
+    20 0
 
-if [ ${CHOICE_EXITCODE} != 0 ] ; then
-  echo "Operation cancelled by user."
-  read -p "Press return to shutdown your computer..."
-  shutdown -h now
-fi
+  # if the user cancels by mistake, show the dialog again. otherwise break the loop
+  # and continue installing
+  CHOICE_EXITCODE=$?
+  if [ $CHOICE_EXITCODE = 0 ] ; then
+    break
+  fi
+done
 
 # install the image
 echo "-----------"
