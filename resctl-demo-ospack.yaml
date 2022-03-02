@@ -212,7 +212,6 @@ actions:
   - action: overlay
     description: Copy linux payload tarball into image
     origin: linux-payload
-    #source: linux.tar
     destination: /usr/local/resctl-demo/linux.tar
 
   - action: run
