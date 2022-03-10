@@ -51,9 +51,10 @@ actions:
     source: flasher/overlays/installer
 
   - action: run
-    description: Disable tty1 getty
+    description: Disable getty
     chroot: true
-    command: systemctl disable getty@tty1.service
+    command: systemctl mask getty@tty1.service &&
+             systemctl mask serial-getty@ttyS1.service
 
   - action: image-partition
     imagename: {{ $image }}.img
