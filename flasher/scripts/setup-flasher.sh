@@ -30,7 +30,7 @@ default $VARIANT flasher
 EOF
 
 cat << EOF > loader/entries/flasher.conf
-title resctl-demo flasher
+title $VARIANT flasher
 linux /linux
 initrd /initramfs.cpio.gz
 options root=/dev/ram0 $VARIANT_OPTIONS console=tty0 systemd.unit=installer.target systemd.show_status quiet
