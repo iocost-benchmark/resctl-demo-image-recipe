@@ -40,7 +40,7 @@ stages:
     if [ "${CI_COMMIT_BRANCH}" = "$CI_DEFAULT_BRANCH" -o "${CI_BUILD_REF_NAME}" = "${CI_COMMIT_TAG}" ] ; then
       # upload legacyboot image to AWS
       cd "${CWD}"
-      python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bookworm/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="out/${IMAGE_LEGACY}.vmdk"
+      python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bookworm/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="out/resctl-demo-image-legacyboot.vmdk"
     fi
 
 docker:
@@ -81,9 +81,6 @@ build:
   script:
     - export CWD=$(pwd)
     - export VERSION="${CI_BUILD_REF_NAME}-$(date '+%Y%m%d.%H%M%S')-${CI_COMMIT_SHORT_SHA}"
-    - export IMAGE_LEGACY="resctl-demo-image-legacyboot"
-    - export IMAGE_EFI="resctl-demo-image-efiboot"
-    - export IMAGE_EFI_FLASHER="resctl-demo-flasher-efiboot"
 
     - echo "Downloading packages from CI"
     - 'curl --location --output pkg-linux.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.collabora.com/api/v4/projects/${CI_PROJECT_ID_PKG_LINUX}/jobs/artifacts/debian/master/download?job=build"'
@@ -93,9 +90,9 @@ build:
     - mkdir out && cd out
     - echo ${VERSION} > version.txt
     - debos --scratchsize=16G ../resctl-demo-ospack.yaml
-    - debos -t "image:${IMAGE_LEGACY}" ../resctl-demo-image-legacyboot.yaml
-    - debos -t "image:${IMAGE_EFI}" ../resctl-demo-image-efiboot.yaml
-    - debos -t "image:${IMAGE_EFI_FLASHER}" -t "flash_image:${IMAGE_EFI}" ../resctl-demo-flasher-efiboot.yaml
+    - debos ../resctl-demo-image-legacyboot.yaml
+    - debos ../resctl-demo-image-efiboot.yaml
+    - debos ../resctl-demo-flasher-efiboot.yaml
     - *deploy_ec2_ami
     - *deploy
   artifacts:
