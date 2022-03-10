@@ -1,9 +1,12 @@
 
-Welcome to Facebook Resource Control Demo!
+Welcome to the Resource Control Demo!
 This test environment is based on Debian Bookworm.
 
-To start the demo, please run:
+To start the resource control demo, please run:
   $ ./start-resctl-demo
+
+To start the resoucrce control benchmark, please run:
+  $ ./start-resctl-bench
 
 Power off the instance when you are finished - `sudo poweroff`.
 

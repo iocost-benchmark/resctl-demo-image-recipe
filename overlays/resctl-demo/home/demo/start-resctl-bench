@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Copyright © 2020 Collabora Ltd.
+# SPDX-License-Identifier: MIT
+
+set -x
+
+# make sure base dir perm matches what resctl-demo would create
+RD_DIR="/var/lib/resctl-demo"
+sudo mkdir -p ${RD_DIR}
+sudo chown root.sudo ${RD_DIR}
+sudo chmod u+w,g+ws ${RD_DIR}
+
+# start resctl-bench
+sudo resctl-bench -r output.json run iocost-tune
