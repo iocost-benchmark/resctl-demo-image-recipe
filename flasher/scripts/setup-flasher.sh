@@ -9,6 +9,7 @@ set -u
 
 VARIANT=$1
 VARIANT_OPTIONS="console=ttyS0,115200n8"
+VARIANT_OPTIONS="console=ttyS0,115200n8 console=tty0"
 if [ "$VARIANT" = "resctl-demo-meta" ]; then
   VARIANT_OPTIONS="console=ttyS1,57600n8"
 fi
@@ -33,7 +34,7 @@ cat << EOF > loader/entries/flasher.conf
 title $VARIANT flasher
 linux /linux
 initrd /initramfs.cpio.gz
-options root=/dev/ram0 $VARIANT_OPTIONS console=tty0 systemd.unit=installer.target systemd.show_status quiet
+options root=/dev/ram0 $VARIANT_OPTIONS systemd.unit=installer.target systemd.show_status quiet
 EOF
 
 # Copy kernel
