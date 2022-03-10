@@ -207,7 +207,7 @@ actions:
 
   - action: run
     description: Change system PRETTY_NAME
-    command: sed -i "s/PRETTY_NAME=.*/PRETTY_NAME=\"resctl-demo test image\"/g" ${ROOTDIR}/etc/os-release
+    command: sed -i "s/PRETTY_NAME=.*/PRETTY_NAME=\"{{ $variant }} test image\"/g" ${ROOTDIR}/etc/os-release
 
   - action: download
     description: Download linux payload tarball
