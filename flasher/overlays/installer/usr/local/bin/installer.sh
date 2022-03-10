@@ -78,7 +78,6 @@ echo ""
 
 bmaptool \
   copy \
-  --nobmap \
   ${FLASHER_STORAGE_MNT}/resctl-demo-image.img.gz \
   ${CHOICE}
 BMAP_EXITCODE=$?
