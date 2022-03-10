@@ -87,7 +87,7 @@ actions:
   - action: run
     description: Setup flasher
     chroot: false
-    script: flasher/scripts/setup-flasher.sh
+    script: flasher/scripts/setup-flasher.sh "{{ $variant }}"
 
   - action: run
     description: Examine disk size

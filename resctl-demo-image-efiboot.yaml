@@ -2,7 +2,7 @@
 {{ $ospack := or .ospack (printf "%s-ospack" $variant) }}
 {{ $image := or .image (printf "%s-image-efiboot" $variant)  }}
 {{ $imagesize := or .imagesize "32GB" }}
-{{ $cmdline := or .cmdline "console=tty0 console=ttyS0,115200n1 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
+{{ $cmdline := or .cmdline "console=tty0 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
 
 architecture: amd64
 
@@ -39,7 +39,13 @@ actions:
 
   - action: filesystem-deploy
     description: Deploying ospack onto image
+{{ if eq $variant "resctl-demo" }}
+    append-kernel-cmdline: {{ $cmdline }} console=ttyS0,115200n1
+{{ else if eq $variant "resctl-demo-meta" }}
+    append-kernel-cmdline: {{ $cmdline }} console=ttyS1,57600n8
+{{ else }}
     append-kernel-cmdline: {{ $cmdline }}
+{{ end }}
 
   - action: unpack
     file: {{ $ospack }}.tar.gz
