@@ -113,6 +113,12 @@ The created image is private; see the steps above to make the image public.
 Debian system with debos and qemu installed.
 
 
+## Image variants
+To build the standard image variant, just run the following commands as-is.
+To build another variant, e.g. the meta variant, to each of the `debos` calls
+add `-t variant:resctl-demo-meta` to the beginning of the command.
+
+
 ## Build ospack
 
 Place binary packages for `resctl-demo` and `resctl-demo-linux` under the `debs/` directory.
