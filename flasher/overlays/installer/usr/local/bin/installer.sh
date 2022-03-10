@@ -18,6 +18,7 @@ for DEV_PATH in $(lsblk -n -d -o PATH); do
 done
 
 # add extra choices
+CHOICES+=("shell" "Drop to a shell")
 CHOICES+=("quit" "Quit (Shutdown Machine without modifications)")
 
 # show choice dialog - loop until user confirms
@@ -38,10 +39,15 @@ while : ; do
     continue
   fi
 
+  if [ "${CHOICE}" = "shell" ] ; then
+    bash
+    continue
+  fi
+
   # if the user quits, then really shutdown
   if [ "${CHOICE}" = "quit" ] ; then
     echo "Operation cancelled by user."
-    sleep 20
+    sleep 5
     shutdown -h now
   fi
 
