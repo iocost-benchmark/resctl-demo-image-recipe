@@ -1,11 +1,17 @@
+{{ $variant := or .variant "resctl-demo" }}
+{{ $image := or .image (printf "%s-flasher-efiboot" $variant)  }}
+{{ $flash_image := or .flash_image (printf "%s-image-efiboot" $variant)  }}
 {{ $mirror := or .mirror "https://deb.debian.org/debian" }}
-{{ $suite := or .suite "bookworm"}}
-{{ $image := or .image "resctl-demo-flasher-efiboot" }}
-{{ $flash_image := or .flash_image "resctl-demo-image-efiboot" }}
+{{ $suite := or .suite "bookworm" }}
 
 architecture: amd64
 
 actions:
+  - action: recipe
+    recipe: check-variant.yaml
+    variables:
+      variant: {{ $variant }}
+
   - action: debootstrap
     suite: {{ $suite }}
     components:

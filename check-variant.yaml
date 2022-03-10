@@ -1,0 +1,18 @@
+{{ $variant := or .variant "" }}
+
+architecture: amd64
+
+actions:
+  # Check the requested variant exists.
+  {{ if eq $variant "resctl-demo" }}
+  {{ else if eq $variant "resctl-demo-meta" }}
+  {{ else }}
+    - action: run
+      label: variant-check
+      command: echo Unknown variant {{ $variant }}; exit 1
+  {{ end }}
+
+  # Debos needs at least one action in a child recipe.
+  - action: run
+    label: variant-check
+    command: echo Building variant {{ $variant }}

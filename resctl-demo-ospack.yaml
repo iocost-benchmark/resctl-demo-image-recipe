@@ -1,10 +1,16 @@
+{{ $variant := or .variant "resctl-demo" }}
+{{ $ospack := or .ospack (printf "%s-ospack" $variant) }}
 {{ $mirror := or .mirror "https://deb.debian.org/debian" }}
 {{ $suite := or .suite "bookworm" }}
-{{ $ospack := or .ospack "resctl-demo-ospack" }}
 
 architecture: amd64
 
 actions:
+  - action: recipe
+    recipe: check-variant.yaml
+    variables:
+      variant: {{ $variant }}
+
   - action: debootstrap
     suite: {{ $suite }}
     components:

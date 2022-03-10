@@ -94,6 +94,11 @@ build:
     - debos ../resctl-demo-image-efiboot.yaml
     - debos ../resctl-demo-flasher-efiboot.yaml
     - *deploy_ec2_ami
+
+    # build the meta variant
+    - debos -t "variant:resctl-demo-meta" --scratchsize=16G ../resctl-demo-ospack.yaml
+    - debos -t "variant:resctl-demo-meta" ../resctl-demo-image-efiboot.yaml
+    - debos -t "variant:resctl-demo-meta" ../resctl-demo-flasher-efiboot.yaml
     - *deploy
   artifacts:
     paths:

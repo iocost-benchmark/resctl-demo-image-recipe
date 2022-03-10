@@ -1,11 +1,17 @@
-{{ $ospack := or .ospack "resctl-demo-ospack" }}
-{{ $image := or .image "resctl-demo-image-efiboot" }}
+{{ $variant := or .variant "resctl-demo" }}
+{{ $ospack := or .ospack (printf "%s-ospack" $variant) }}
+{{ $image := or .image (printf "%s-image-efiboot" $variant)  }}
 {{ $imagesize := or .imagesize "32GB" }}
 {{ $cmdline := or .cmdline "console=tty0 console=ttyS0,115200n1 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
 
 architecture: amd64
 
 actions:
+  - action: recipe
+    recipe: check-variant.yaml
+    variables:
+      variant: {{ $variant }}
+
   - action: image-partition
     imagename: {{ $image }}.img
     imagesize: {{ $imagesize }}
