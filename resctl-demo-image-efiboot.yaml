@@ -2,7 +2,7 @@
 {{ $ospack := or .ospack (printf "%s-ospack" $variant) }}
 {{ $image := or .image (printf "%s-image-efiboot" $variant)  }}
 {{ $imagesize := or .imagesize "32GB" }}
-{{ $cmdline := or .cmdline "console=tty0 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
+{{ $cmdline := or .cmdline "console=tty0 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1 systemd.show_status=0 quiet" }}
 
 architecture: amd64
 
