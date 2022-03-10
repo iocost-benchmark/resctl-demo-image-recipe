@@ -26,7 +26,7 @@ mkdir -p loader/entries
 
 cat << EOF > loader/loader.conf
 timeout 10
-default resctl-demo flasher
+default $VARIANT flasher
 EOF
 
 cat << EOF > loader/entries/flasher.conf
