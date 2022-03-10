@@ -136,8 +136,8 @@ actions:
     command: systemctl mask oomd.service
 
   - action: run
-    description: Set hostname
-    command: echo "resctl-demo" > ${ROOTDIR}/etc/hostname
+    description: Set hostname to {{ $variant }}
+    command: echo "{{ $variant }}" > ${ROOTDIR}/etc/hostname
 
   - action: run
     description: Enable systemd-networkd

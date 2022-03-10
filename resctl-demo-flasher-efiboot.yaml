@@ -33,9 +33,8 @@ actions:
       - dialog
 
   - action: run
-    description: Set hostname
-    chroot: true
-    command: echo "resctl-demo-flasher" > /etc/hostname
+    description: Set hostname to {{ $variant }}
+    command: echo "{{ $variant }}-flasher" > ${ROOTDIR}/etc/hostname
 
   - action: run
     description: Set root password
