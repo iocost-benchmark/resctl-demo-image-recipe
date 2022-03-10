@@ -8,13 +8,17 @@ set -e
 set -u
 
 VARIANT=$1
-VARIANT_OPTIONS="console=ttyS0,115200n8"
+INSTALLER_TTY="/dev/tty1"
 VARIANT_OPTIONS="console=ttyS0,115200n8 console=tty0"
 if [ "$VARIANT" = "resctl-demo-meta" ]; then
+  INSTALLER_TTY="/dev/ttyS1"
   VARIANT_OPTIONS="console=ttyS1,57600n8"
 fi
 
 cd ${IMAGEMNTDIR}
+
+# Update installer TTY
+sed -i "s|{INSTALLER_TTY}|$INSTALLER_TTY|" ${ROOTDIR}/etc/systemd/system/installer.service
 
 # Install systemd-boot
 mkdir -p EFI/BOOT

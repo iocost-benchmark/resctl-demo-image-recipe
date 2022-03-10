@@ -6,7 +6,7 @@ Type=idle
 ExecStart=/usr/local/bin/installer.sh
 StandardInput=tty
 StandardOutput=tty
-TTYPath=/dev/tty1
+TTYPath={INSTALLER_TTY}
 TTYReset=yes
 TTYVHangup=yes
 
