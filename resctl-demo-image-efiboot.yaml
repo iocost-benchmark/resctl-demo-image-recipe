@@ -80,6 +80,10 @@ actions:
     chroot: true
     command: kernel-install add $(ls /usr/lib/modules | head -1) /boot/vmlinuz* /boot/initrd*
 
+  - action: overlay
+    description: Getty autologin
+    source: overlays/getty-autologin
+
   - action: run
     description: Setup demo for EFI image
     label: setup-demo-efi.sh
