@@ -3,6 +3,7 @@
 {{ $image := or .image (printf "%s-image-efiboot" $variant)  }}
 {{ $imagesize := or .imagesize "32GB" }}
 {{ $cmdline := or .cmdline "console=tty0 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1 systemd.show_status=0 quiet" }}
+{{ $pack := or .pack "true" }}
 
 architecture: amd64
 
@@ -95,6 +96,7 @@ actions:
     chroot: true
     command: df -h / /boot/efi
 
+{{ if eq $pack "true" }}
   - action: run
     description: Convert {{ $image }}.img to {{ $image }}.vmdk
     postprocess: true
@@ -114,3 +116,4 @@ actions:
     description: Checksum for {{ $image }}.img.gz
     postprocess: true
     command: sha256sum {{ $image }}.img.gz > {{ $image }}.img.gz.sha256
+{{ end }}

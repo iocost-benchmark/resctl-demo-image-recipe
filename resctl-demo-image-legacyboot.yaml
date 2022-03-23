@@ -3,6 +3,7 @@
 {{ $image := or .image (printf "%s-image-legacyboot" $variant)  }}
 {{ $imagesize := or .imagesize "32GB" }}
 {{ $cmdline := or .cmdline "root=LABEL=system console=tty0 console=ttyS0,115200n1 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1" }}
+{{ $pack := or .pack "true" }}
 
 architecture: amd64
 
@@ -64,6 +65,7 @@ actions:
     chroot: true
     command: df -h / /boot
 
+{{ if eq $pack "true" }}
   - action: run
     description: Convert {{ $image }}.img to {{ $image }}.vmdk
     postprocess: true
@@ -83,3 +85,4 @@ actions:
     description: Checksum for {{ $image }}.img.gz
     postprocess: true
     command: sha256sum {{ $image }}.img.gz > {{ $image }}.img.gz.sha256
+{{ end }}
