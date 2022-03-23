@@ -76,6 +76,11 @@ actions:
       - name: flasher-storage
         fs: ext4
         start: 256M
+        end: 4G
+      - name: results
+        partlabel: results
+        fs: fat32
+        start: 4G
         end: 100%
 
   - action: run
