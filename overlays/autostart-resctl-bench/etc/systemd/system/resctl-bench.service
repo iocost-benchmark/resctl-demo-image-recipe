@@ -1,0 +1,15 @@
+[Unit]
+Description=resctl-bench
+
+[Service]
+Type=exec
+ExecStart=/home/demo/start-resctl-bench
+User=demo
+Group=demo
+StandardInput=tty
+StandardOutput=tty
+TTYPath=/dev/ttyS1
+TTYVHangup=yes
+
+[Install]
+WantedBy=multi-user.target.wants

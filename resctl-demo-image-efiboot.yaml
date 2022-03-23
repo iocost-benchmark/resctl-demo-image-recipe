@@ -85,6 +85,18 @@ actions:
     description: Getty autologin
     source: overlays/getty-autologin
 
+{{ if eq $variant "resctl-demo-meta" }}
+  - action: run
+    description: Disable getty
+    chroot: true
+    command: systemctl mask getty@tty1.service &&
+             systemctl mask serial-getty@ttyS1.service
+
+  - action: overlay
+    description: Autostart resctl bench
+    source: overlays/autostart-resctl-bench
+{{ end }}
+
   - action: run
     description: Setup demo for EFI image
     label: setup-demo-efi.sh
