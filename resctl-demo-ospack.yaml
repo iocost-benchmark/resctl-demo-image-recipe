@@ -25,6 +25,7 @@ actions:
     packages:
       - apt-transport-https
       - dbus
+      - dialog
       - gnupg
       - initramfs-tools
       - sudo

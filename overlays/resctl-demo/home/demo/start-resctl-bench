@@ -2,7 +2,7 @@
 # Copyright © 2020 Collabora Ltd.
 # SPDX-License-Identifier: MIT
 
-set -x
+OUTPUT_DIR="/mnt/results"
 
 # make sure base dir perm matches what resctl-demo would create
 RD_DIR="/var/lib/resctl-demo"
@@ -10,5 +10,53 @@ sudo mkdir -p ${RD_DIR}
 sudo chown root.sudo ${RD_DIR}
 sudo chmod u+w,g+ws ${RD_DIR}
 
+echo ""
+echo ""
+echo "Starting resctl-bench..."
+sleep 5
+
+# show mount failed dialog - loop until user plugs in disk
+while : ; do
+  sudo mkdir -p "$OUTPUT_DIR"
+  sudo mount PARTLABEL=results "$OUTPUT_DIR"
+  if [ $? = 0 ] ; then
+    break
+  fi
+
+  dialog --clear \
+    --backtitle "resctl-bench" \
+    --title "Insert flasher USB" \
+    --yesno "Could not mount flasher USB. Please connect flasher USB to the machine and press enter to retry.\n\nChoose no to shutdown machine." \
+    20 0
+  if [ $? != 0 ] ; then
+      echo "Operation cancelled by user. Shutting down."
+      sleep 5
+      sudo shutdown -h now
+  fi
+  clear
+done
+
+# Save the file to "_inprogress" first to allow resctl-bench to recover on powerloss
+OUTPUT_FILENAME_TMP="resctl-bench-result_inprogress.json.gz"
+
+# TODO figure out block device & build filename from model /sys/block/*/device/model
+TIMESTAMP=$(date "+%Y_%m_%d-%H_%M_%S")
+OUTPUT_FILENAME_FINAL="resctl-bench-result_$TIMESTAMP.json.gz"
+echo "Saving result to $OUTPUT_FILENAME_FINAL"
+
 # start resctl-bench
-sudo resctl-bench -r output.json run iocost-tune
+sudo resctl-bench -r "$OUTPUT_DIR/$OUTPUT_FILENAME_TMP" run iocost-tune
+if [ $? != 0 ] ; then
+  echo "resctl-bench failed."
+else
+  echo "resctl-bench finshed successfully."
+  echo "Result saved as $OUTPUT_FILENAME_FINAL"
+  mv "$OUTPUT_DIR/$OUTPUT_FILENAME_TMP" "$OUTPUT_DIR/$OUTPUT_FILENAME_FINAL"
+fi
+
+# unmount usb stick
+sudo umount "$OUTPUT_DIR"
+echo ""
+echo ""
+read -p "Press return to shutdown computer..."
+sudo shutdown -h now
