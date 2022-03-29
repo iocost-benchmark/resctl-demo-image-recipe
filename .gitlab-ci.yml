@@ -14,7 +14,6 @@ stages:
       markdown DEPLOY.md > out/DEPLOY.html
 
       # create symbolic link to latest version
-      cd "${CWD}"
       mkdir "resctl-demo-${VERSION}"
       mv out/* resctl-demo-${VERSION}/
       ln -Tsf "resctl-demo-${VERSION}" "resctl-demo-latest"
@@ -40,7 +39,6 @@ stages:
   - >
     if [ "${CI_COMMIT_BRANCH}" = "$CI_DEFAULT_BRANCH" -o "${CI_BUILD_REF_NAME}" = "${CI_COMMIT_TAG}" ] ; then
       # upload legacyboot image to AWS
-      cd "${CWD}"
       python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bookworm/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="out/resctl-demo-image-legacyboot.vmdk"
     fi
 
@@ -93,20 +91,18 @@ build:
   dependencies:
     - buildenv
   script:
-    - export CWD=$(pwd)
-
     - echo "Downloading packages from CI"
     - 'curl --location --output pkg-linux.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.collabora.com/api/v4/projects/${CI_PROJECT_ID_PKG_LINUX}/jobs/artifacts/debian/master/download?job=build"'
     - unzip \*.zip && rm *.zip
     - mv artifacts/ debs/
 
     # build regular variant
-    - mkdir out && cd out
-    - echo ${VERSION} > version.txt
-    - debos --scratchsize=16G ../resctl-demo-ospack.yaml
-    - debos ../resctl-demo-image-legacyboot.yaml
-    - debos ../resctl-demo-image-efiboot.yaml
-    - debos ../resctl-demo-flasher-efiboot.yaml
+    - mkdir -p out
+    - echo ${VERSION} > out/version.txt
+    - debos --artifactdir=out --scratchsize=16G resctl-demo-ospack.yaml
+    - debos --artifactdir=out resctl-demo-image-legacyboot.yaml
+    - debos --artifactdir=out resctl-demo-image-efiboot.yaml
+    - debos --artifactdir=out resctl-demo-flasher-efiboot.yaml
     - *deploy_ec2_ami
     - *deploy
   artifacts:
@@ -126,19 +122,17 @@ build-meta:
   dependencies:
     - buildenv
   script:
-    - export CWD=$(pwd)
-
     - echo "Downloading packages from CI"
     - 'curl --location --output pkg-linux.zip --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.collabora.com/api/v4/projects/${CI_PROJECT_ID_PKG_LINUX}/jobs/artifacts/debian/master/download?job=build"'
     - unzip \*.zip && rm *.zip
     - mv artifacts/ debs/
 
     # build meta variant
-    - mkdir out && cd out
-    - echo ${VERSION} > version.txt
-    - debos -t "variant:resctl-demo-meta" --scratchsize=16G ../resctl-demo-ospack.yaml
-    - debos -t "variant:resctl-demo-meta" ../resctl-demo-image-efiboot.yaml
-    - debos -t "variant:resctl-demo-meta" ../resctl-demo-flasher-efiboot.yaml
+    - mkdir -p out
+    - echo ${VERSION} > out/version.txt
+    - debos --artifactdir=out --scratchsize=16G -t "variant:resctl-demo-meta" resctl-demo-ospack.yaml
+    - debos --artifactdir=out -t "variant:resctl-demo-meta" resctl-demo-image-efiboot.yaml
+    - debos --artifactdir=out -t "variant:resctl-demo-meta" resctl-demo-flasher-efiboot.yaml
     - *deploy
   artifacts:
     paths:

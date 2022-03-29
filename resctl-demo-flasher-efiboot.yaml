@@ -105,15 +105,15 @@ actions:
   - action: run
     description: Create block map for {{ $image }}.img
     postprocess: true
-    command: bmaptool create {{ $image }}.img > {{ $image }}.img.bmap
+    command: bmaptool create "$ARTIFACTDIR/{{ $image }}.img" > "$ARTIFACTDIR/{{ $image }}.img.bmap"
 
   - action: run
     description: Compress {{ $image }}.img
     postprocess: true
-    command: pigz -f -k {{ $image }}.img
+    command: pigz -f -k "$ARTIFACTDIR/{{ $image }}.img"
 
   - action: run
     description: Checksum for {{ $image }}.img.gz
     postprocess: true
-    command: sha256sum {{ $image }}.img.gz > {{ $image }}.img.gz.sha256
+    command: sha256sum "$ARTIFACTDIR/{{ $image }}.img.gz" > "$ARTIFACTDIR/{{ $image }}.img.gz.sha256"
 {{ end }}
