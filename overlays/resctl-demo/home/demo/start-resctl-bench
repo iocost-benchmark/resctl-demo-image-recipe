@@ -48,6 +48,8 @@ echo "Saving result to $OUTPUT_FILENAME_FINAL"
 sudo resctl-bench -r "$OUTPUT_DIR/$OUTPUT_FILENAME_TMP" run iocost-tune
 if [ $? != 0 ] ; then
   echo "resctl-bench failed."
+  echo "launching shell to allow investigation..."
+  bash
 else
   echo "resctl-bench finshed successfully."
   echo "Result saved as $OUTPUT_FILENAME_FINAL"
