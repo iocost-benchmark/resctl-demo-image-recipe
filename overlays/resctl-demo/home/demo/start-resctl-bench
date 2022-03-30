@@ -36,24 +36,20 @@ while : ; do
   clear
 done
 
-# Save the file to "_inprogress" first to allow resctl-bench to recover on powerloss
-OUTPUT_FILENAME_TMP="resctl-bench-result_inprogress.json.gz"
-
 # TODO figure out block device & build filename from model /sys/block/*/device/model
 TIMESTAMP=$(date "+%Y_%m_%d-%H_%M_%S")
 OUTPUT_FILENAME_FINAL="resctl-bench-result_$TIMESTAMP.json.gz"
 echo "Saving result to $OUTPUT_FILENAME_FINAL"
 
 # start resctl-bench
-sudo resctl-bench -r "$OUTPUT_DIR/$OUTPUT_FILENAME_TMP" run iocost-tune
+sudo resctl-bench -r "$OUTPUT_DIR/$OUTPUT_FILENAME_FINAL" run iocost-tune
 if [ $? != 0 ] ; then
   echo "resctl-bench failed."
   echo "launching shell to allow investigation..."
   bash
 else
   echo "resctl-bench finshed successfully."
-  echo "Result saved as $OUTPUT_FILENAME_FINAL"
-  mv "$OUTPUT_DIR/$OUTPUT_FILENAME_TMP" "$OUTPUT_DIR/$OUTPUT_FILENAME_FINAL"
+  echo "Result saved on USB stick as $OUTPUT_FILENAME_FINAL"
 fi
 
 # unmount usb stick
