@@ -199,3 +199,12 @@ The meta variant contains some additional options for specific vendor hardware.
     $ debos --artifactdir=out -t variant:resctl-demo-meta --scratchsize=16G resctl-demo-ospack.yaml
     $ debos --artifactdir=out -t variant:resctl-demo-meta resctl-demo-image-efiboot.yaml
     $ debos --artifactdir=out -t variant:resctl-demo-meta resctl-demo-flasher-efiboot.yaml
+
+
+### Customising resctl-demo meta variant
+
+Grep the code using `git grep` for the following terms to see how the meta variant
+is different:
+
+- `git grep variant`
+- `git grep resctl-demo-meta`
