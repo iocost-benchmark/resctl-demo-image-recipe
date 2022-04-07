@@ -109,43 +109,76 @@ The created image is private; see the steps above to make the image public.
 
 # Local Build instructions
 
-## Requirements
-Debian system with debos and qemu installed.
+## System Requirements
+
+Debian system with [debos](https://github.com/go-debos/debos) installed.
+
+There are two options, see the detail below.
+
+### Option 1: Debian Virtual Machine
+
+This option is best suited for users running non-Linux operating systems.
+
+To create a Debian virtual machine using VirtualBox, see the [following tutorial](https://getlabsdone.com/how-to-install-debian-11-on-virtualbox-step-by-step-guide/).
+
+Be sure to give it a high amount of RAM (>4096MB), disk space (>128GB) and at
+least two CPUs.
+
+After creating the VM, enable [nested virtualization](https://ostechnix.com/how-to-enable-nested-virtualization-in-virtualbox/).
+
+Install `debos` (and other useful tools) using apt:
+
+    $ sudo apt update
+    $ sudo apt install --yes debos git
 
 
-## Image variants
-To build the standard image variant, just run the following commands as-is.
-To build another variant, e.g. the meta variant, to each of the `debos` calls
-add `-t variant:resctl-demo-meta` to the beginning of the command.
+Verify that Kernel Virtualisation is available on your machine:
+
+    $ ls -la /dev/kvm
+    crw-rw----+ 1 root kvm 10, 232 Apr  7 08:40 /dev/kvm
 
 
-## Build ospack
+You may need to add the user to the `kvm` group:
 
-Place binary packages for `resctl-demo` and `resctl-demo-linux` under the `debs/` directory.
-See the `.gitlab-ci.yml` for further instructions.
-
-    $ mkdir out && cd out
-    $ debos --scratchsize=16G ../resctl-demo-ospack.yaml
+    $ sudo usermod -a -G kvm $USER
 
 
-## Build EFI image & run under QEmu for local testing
-
-    $ cd out
-    $ debos -t imagesize:60GB ../resctl-demo-image-efiboot.yaml
-    $ ../start-qemu-efi.sh
+After logging out and logging back in, you are ready to run build images!
 
 
-## Build EFI flasher image & run under QEMu for local testing
+### Option 2: Debian Docker Container
 
-The EFI flasher image will flash the image to a local hard driver.
+This option is best suited for users already running a Linux distribution.
 
-    $ cd out
-    $ debos ../resctl-demo-image-efiboot.yaml
-    $ debos ../resctl-demo-flasher-efiboot.yaml
-    $ ../start-qemu-flasher-efi.sh
+To use the Debos Docker image, in the setps following when you see `debos ...` instead
+pass the arguments to a docker script.
+
+For instance, to run `debos --help`, instead run:
+
+```
+docker run \
+       --rm \
+       -w /recipes \
+       -v $(pwd):/recipes \
+       -u $(id -u):$(id -g) \
+       --group-add=$(getent group kvm | cut -d : -f 3) \
+       --device /dev/kvm \
+       --security-opt label=disable \
+       go-debos/debos \
+       --help
+```
 
 
-## Build Legacy Boot image & upload to AWS EC2
+### Build resctl-demo images
+
+    $ mkdir out
+    $ debos --artifactdir=out --scratchsize=16G resctl-demo-ospack.yaml
+    $ debos --artifactdir=out resctl-demo-flasher-legacyboot.yaml
+    $ debos --artifactdir=out resctl-demo-image-efiboot.yaml
+    $ debos --artifactdir=out resctl-demo-flasher-efiboot.yaml
+
+
+### Upload AWS Legacy Boot image to AWS EC2
 
 Since AWS cannot boot EFI images, a legacy boot image must be created.
 
@@ -155,6 +188,14 @@ Some environment variables need to be set to your EC2 secrets:
 
 
     $ cd out
-    $ debos ../resctl-demo-image-legacyboot.yaml
     $ python3 ../aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo" --ami-description="resctl-demo" --image-file="resctl-demo-image.vmdk"
 
+
+### Build resctl-demo meta variant images
+
+The meta variant contains some additional options for specific vendor hardware.
+
+    $ mkdir out
+    $ debos --artifactdir=out -t variant:resctl-demo-meta --scratchsize=16G resctl-demo-ospack.yaml
+    $ debos --artifactdir=out -t variant:resctl-demo-meta resctl-demo-image-efiboot.yaml
+    $ debos --artifactdir=out -t variant:resctl-demo-meta resctl-demo-flasher-efiboot.yaml
