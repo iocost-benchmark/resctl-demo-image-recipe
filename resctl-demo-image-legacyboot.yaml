@@ -50,8 +50,10 @@ actions:
 
   - action: run
     description: Mount rootfs by LABEL instead of UUID
+    label: sed
     command: |
-      UUID=$(blkid "${IMAGE}-part2" -o export | grep "^UUID=")
+      # The first UUID will be from the image, the second UUID will be the root partition
+      UUID=$(blkid -o export ${IMAGE}* | grep "^UUID=" | sed -n 2p)
       sed -i "s/${UUID}/LABEL=system/g" ${ROOTDIR}/etc/fstab
 
   - action: run
