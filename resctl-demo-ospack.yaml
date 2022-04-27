@@ -50,16 +50,14 @@ actions:
   - action: overlay
     description: Copy custom packages
     source: debs
+    destination: debs
 
   - action: run
     description: Install custom packages
     chroot: true
-    command: rm /*dbg*.deb ; dpkg -i /*.deb ; rm -rf /*.deb
-
-  - action: run
-    description: Install dependencies for custom packages
-    chroot: true
-    command: apt-get install -f --yes
+    command: rm debs/*dbg*.deb &&
+             apt-get install --yes --allow-downgrades ./debs/*.deb &&
+             rm -rf /debs
 
   - action: run
     description: Mark custom packages as hold
