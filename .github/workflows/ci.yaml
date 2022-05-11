@@ -1,5 +1,7 @@
-name: Build images
-on: [push, pull_request]
+name: Build resctl-demo images
+on:
+  pull_request:
+  push:
 
 jobs:
   build_images:
