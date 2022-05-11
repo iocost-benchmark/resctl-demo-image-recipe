@@ -45,7 +45,6 @@ actions:
     description: Install packages from Collabora repository
     packages:
       - oomd
-      - resctl-demo
 
   - action: overlay
     description: Copy custom packages
@@ -105,6 +104,11 @@ actions:
       - wget
 
   - action: apt
+    description: Depends for resctl-demo
+    packages:
+      - cargo
+
+  - action: apt
     description: Depends for drgn
     packages:
       - autoconf
@@ -123,6 +127,12 @@ actions:
       - python3-pip
       - python3-setuptools
       - zlib1g-dev
+
+  - action: run
+    description: Install resctl-demo from source
+    chroot: true
+    command: TMPDIR=/var/tmp cargo install rd-hashd rd-agent resctl-demo resctl-bench;
+             cd ~/.cargo/bin && mv rd-hashd rd-agent resctl-demo resctl-bench /usr/local/bin
 
   - action: run
     description: Install drgn from source
