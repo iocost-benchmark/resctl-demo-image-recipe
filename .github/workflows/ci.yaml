@@ -15,7 +15,7 @@ jobs:
         variant:
           - resctl-demo
           - resctl-demo-meta
-    name: Build resctl-demo image (variant ${{ matrix.variant }})
+    name: Build ${{ matrix.variant }} image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
