@@ -60,6 +60,7 @@ jobs:
         run: sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} --scratchsize=16G resctl-demo-ospack.yaml
 
       - name: Build EFI images
+        run: |
           sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} resctl-demo-image-efiboot.yaml
           sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} resctl-demo-flasher-efiboot.yaml
 
