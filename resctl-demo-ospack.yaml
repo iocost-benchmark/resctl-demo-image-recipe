@@ -41,11 +41,6 @@ actions:
     description: Add Collabora repository signature
     command: apt-key --keyring /etc/apt/trusted.gpg.d/collabora.gpg add /collabora-archive-keyring.asc && rm /collabora-archive-keyring.asc
 
-  - action: apt
-    description: Install packages from Collabora repository
-    packages:
-      - oomd
-
   - action: overlay
     description: Copy custom packages
     source: debs
@@ -104,12 +99,12 @@ actions:
       - wget
 
   - action: apt
-    description: Depends for resctl-demo
+    description: Build dependencies for resctl-demo
     packages:
       - cargo
 
   - action: apt
-    description: Depends for drgn
+    description: Build dependencies for drgn
     packages:
       - autoconf
       - automake
@@ -127,6 +122,11 @@ actions:
       - python3-pip
       - python3-setuptools
       - zlib1g-dev
+
+  - action: apt
+    description: Runtime dependencies for resctl-demo
+    packages:
+      - oomd
 
   - action: run
     description: Install resctl-demo from source
