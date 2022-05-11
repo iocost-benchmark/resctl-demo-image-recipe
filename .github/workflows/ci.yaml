@@ -31,9 +31,8 @@ jobs:
       - name: Download kernel
         uses: dawidd6/action-download-artifact@v2
         with:
-          repo: iocost-benchmark/linux
-          #TODO branch: debian/master
-          branch: wip/obbardc/github
+          repo: iocost-benchmark/resctl-demo-linux
+          branch: resctl-demo
           workflow: ci.yaml
           workflow_conclusion: success
           path: debs/
