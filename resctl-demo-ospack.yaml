@@ -33,15 +33,6 @@ actions:
       - udev
 
   - action: overlay
-    description: Collabora repository
-    source: overlays/facebook-repository
-
-  - action: run
-    chroot: true
-    description: Add Collabora repository signature
-    command: apt-key --keyring /etc/apt/trusted.gpg.d/collabora.gpg add /collabora-archive-keyring.asc && rm /collabora-archive-keyring.asc
-
-  - action: overlay
     description: Copy custom packages
     source: debs
     destination: debs
