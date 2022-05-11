@@ -8,8 +8,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_images:
-    name: Build resctl-demo images
+  build_image:
+    strategy:
+      fail-fast: false
+      matrix:
+        variant:
+          - resctl-demo
+          - resctl-demo-meta
+    name: Build resctl-demo image (variant ${{ matrix.variant }})
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -49,15 +55,15 @@ jobs:
       - name: Build image
         run: |
           mkdir out
-          sudo debos --disable-fakemachine --artifactdir=out --scratchsize=16G resctl-demo-ospack.yaml
-          sudo debos --disable-fakemachine --artifactdir=out resctl-demo-image-legacyboot.yaml
-          sudo debos --disable-fakemachine --artifactdir=out resctl-demo-image-efiboot.yaml
-          sudo debos --disable-fakemachine --artifactdir=out resctl-demo-flasher-efiboot.yaml
+          sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} --scratchsize=16G resctl-demo-ospack.yaml
+          sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} resctl-demo-image-legacyboot.yaml
+          sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} resctl-demo-image-efiboot.yaml
+          sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} resctl-demo-flasher-efiboot.yaml
 
       - name: Publish artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: resctl-demo
+          name: ${{ matrix.variant }}
           path: |
             out/
             !out/*.img
