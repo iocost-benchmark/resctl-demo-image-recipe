@@ -48,7 +48,7 @@ jobs:
           workflow_conclusion: success
           path: debs/
 
-      - name: Massage downloaded files
+      - name: Move kernel into the correct place
         run: |
           mv debs/resctl-demo-kernel/* debs/
           find debs
