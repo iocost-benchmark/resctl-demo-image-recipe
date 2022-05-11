@@ -67,6 +67,15 @@ jobs:
         if: matrix.variant == 'resctl-demo'
         run: sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} --scratchsize=16G resctl-demo-ospack.yaml
 
+      - name: Upload Legacy boot image to AWS EC2
+        if: matrix.variant == 'resctl-demo'
+        run: |
+          VERSION="${GITHUB_REF##*/}-$(date '+%Y%m%d.%H%M%S')-${GITHUB_SHA::7}"
+          echo "Version: $VERSION"
+          python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bookworm/${VERSION}"
+                                                  --ami-description="resctl-demo version ${VERSION}"
+                                                  --image-file="out/resctl-demo-image-legacyboot.vmdk"
+
       - name: Publish artifacts
         uses: actions/upload-artifact@v3
         with:
