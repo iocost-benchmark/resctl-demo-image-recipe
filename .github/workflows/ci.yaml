@@ -70,6 +70,11 @@ jobs:
 
       - name: Upload Legacy boot image to AWS EC2
         if: matrix.variant == 'resctl-demo'
+        env:
+          EC2_ACCESS_ID: ${{ secrets.EC2_ACCESS_ID }}
+          EC2_SECRET_KEY: ${{ secrets.EC2_SECRET_KEY }}
+          EC2_REGION: ${{ secrets.EC2_REGION }}
+          EC2_BUCKET: ${{ secrets.EC2_BUCKET }}
         run: |
           VERSION="${GITHUB_REF##*/}-$(date '+%Y%m%d.%H%M%S')-${GITHUB_SHA::7}"
           echo "Version: $VERSION"
