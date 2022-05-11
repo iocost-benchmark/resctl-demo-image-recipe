@@ -66,7 +66,7 @@ jobs:
 
       - name: Build Legacy boot image
         if: matrix.variant == 'resctl-demo'
-        run: sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} --scratchsize=16G resctl-demo-ospack.yaml
+        run: sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} resctl-demo-image-legacyboot.yaml
 
       - name: Upload Legacy boot image to AWS EC2
         if: matrix.variant == 'resctl-demo'
