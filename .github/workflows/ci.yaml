@@ -75,8 +75,8 @@ jobs:
           echo "Version: $VERSION"
 
           pip3 install --requirement requirements.txt
-          python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bookworm/${VERSION}"
-                                                  --ami-description="resctl-demo version ${VERSION}"
+          python3 aws-ec2/upload-image-aws-ec2.py --ami-name="${{ matrix.variant }}/bookworm/${VERSION}"
+                                                  --ami-description="${{ matrix.variant }} version ${VERSION}"
                                                   --image-file="out/resctl-demo-image-legacyboot.vmdk"
 
       - name: Publish artifacts
