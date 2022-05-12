@@ -130,6 +130,11 @@ actions:
       - pkgconf
 
   - action: run
+    description: Set python3 as default
+    chroot: true
+    command: update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+
+  - action: run
     description: Install resctl-demo from source
     chroot: true
     command: TMPDIR=/var/tmp cargo install rd-hashd rd-agent resctl-demo resctl-bench;
