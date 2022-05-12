@@ -118,6 +118,16 @@ actions:
     description: Runtime dependencies for resctl-demo
     packages:
       - oomd
+      - gnuplot-nox
+      - python3-bpfcc
+      - libssl-dev
+      - libelf-dev
+      - fio
+      - build-essential
+      - wget
+      - bison
+      - flex
+      - pkgconf
 
   - action: run
     description: Install resctl-demo from source
