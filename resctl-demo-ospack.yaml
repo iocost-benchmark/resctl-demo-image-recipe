@@ -40,7 +40,7 @@ actions:
   - action: run
     description: Install custom packages
     chroot: true
-    command: rm debs/*dbg*.deb &&
+    command: rm debs/*dbg*.deb || true;
              apt-get install --yes --allow-downgrades ./debs/*.deb &&
              rm -rf /debs
 
