@@ -12,8 +12,8 @@ the SSD under test.
 ** WARNING: Booting this image and following the prompts may remove all of your personal data. **
 ** Be sure to replace `{YOUR_DEVICE}` with the correct node for your USB stick **
 
-Copy the flasher image available from [images.collabora.com](https://images.collabora.com/facebook/)
-to a USB stick with a size at least 16GB using one of the following methods:
+Copy the flasher image to a USB stick with a size at least 16GB using one of the
+following methods:
 
 
 ### bmaptool
@@ -30,9 +30,17 @@ is usually contained in the default repositories (or in AUR for Arch):
 
 
 Flash the image directly to the device (bmaptool handles decompression, checksumming
-and only writes used blocks to the drive: it is FAST):
+and only writes used blocks to the drive: it is FAST), for the default images:
 
-    $ sudo bmaptool copy https://images.collabora.com/facebook/resctl-demo-latest/resctl-demo-flasher-efiboot.img.gz /dev/{YOUR_DEVICE}
+    $ wget https://nightly.link/iocost-benchmark/resctl-demo-image-recipe/workflows/ci.yaml/main/resctl-demo-flasher-efiboot.zip
+    $ unzip resctl-demo-flasher-efiboot.zip
+    $ sudo bmaptool copy resctl-demo-flasher-efiboot.img.gz /dev/{YOUR_DEVICE}
+
+or, for the meta variant:
+
+    $ wget https://nightly.link/iocost-benchmark/resctl-demo-image-recipe/workflows/ci.yaml/main/resctl-demo-meta-flasher-efiboot.zip
+    $ unzip resctl-demo-meta-flasher-efiboot.zip
+    $ sudo bmaptool copy resctl-demo-meta-flasher-efiboot.img.gz /dev/{YOUR_DEVICE}
 
 
 ### Etcher
@@ -48,15 +56,24 @@ it requires manually checksumming the images and writes all data to the disk.
 
 If any of the following commands fail, it is likely your final USB image is corrupt.
 
-    $ wget https://images.collabora.com/facebook/resctl-demo-latest/resctl-demo-flasher-efiboot.img.gz
-    $ wget https://images.collabora.com/facebook/resctl-demo-latest/resctl-demo-flasher-efiboot.img.gz.sha256
+    $ wget https://nightly.link/iocost-benchmark/resctl-demo-image-recipe/workflows/ci.yaml/main/resctl-demo-flasher-efiboot.zip
+    $ unzip resctl-demo-flasher-efiboot.zip
     $ sha256sum --check resctl-demo-flasher-efiboot.img.gz.sha256
     $ gunzip resctl-demo-flasher-efiboot.img.gz
     $ sudo dd if=resctl-demo-flasher-efiboot.img of=/dev/{YOUR_DEVICE} bs=8M oflag=dsync status=progress
     $ sudo cmp -n `stat -c '%s' resctl-demo-flasher-efiboot.img` resctl-demo-flasher-efiboot.img /dev/{YOUR_DEVICE}
 
+or, for the meta variant:
 
-## Booting 
+    $ wget https://nightly.link/iocost-benchmark/resctl-demo-image-recipe/workflows/ci.yaml/main/resctl-demo-meta-flasher-efiboot.zip
+    $ unzip resctl-demo-meta-flasher-efiboot.zip
+    $ sha256sum --check resctl-demo-meta-flasher-efiboot.img.gz.sha256
+    $ gunzip resctl-demo-meta-flasher-efiboot.img.gz
+    $ sudo dd if=resctl-demo-meta-flasher-efiboot.img of=/dev/{YOUR_DEVICE} bs=8M oflag=dsync status=progress
+    $ sudo cmp -n `stat -c '%s' resctl-demo-meta-flasher-efiboot.img` resctl-demo-meta-flasher-efiboot.img /dev/{YOUR_DEVICE}
+
+
+## Booting
 
 Boot the USB stick using EFI, a screen will ask which drive to install the OS to.
 
