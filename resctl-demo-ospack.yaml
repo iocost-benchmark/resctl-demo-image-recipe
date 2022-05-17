@@ -2,6 +2,7 @@
 {{ $ospack := or .ospack (printf "%s-ospack" $variant) }}
 {{ $mirror := or .mirror "https://deb.debian.org/debian" }}
 {{ $suite := or .suite "bookworm" }}
+{{ $kernel_branch := or .kernel_branch "resctl-demo" }}
 
 architecture: amd64
 
@@ -32,13 +33,32 @@ actions:
       - systemd-sysv
       - udev
 
+{{ if eq $kernel_branch "debs" }}
+  # Use the kernel package from the filesystem
   - action: overlay
-    description: Copy custom packages
+    description: Copy kernel package
     source: debs
     destination: debs
+{{ else }}
+  # Download the kernel package from GitHub
+  - action: download
+    url: https://nightly.link/iocost-benchmark/resctl-demo-linux/workflows/ci.yaml/{{ $kernel_branch }}/resctl-demo-kernel.zip
+    name: kernel
+    unpack: true
+    compression: zip
+
+  - action: overlay
+    description: Copy kernel package
+    origin: kernel
+    destination: debs
+{{ end }}
 
   - action: run
-    description: Install custom packages
+    description: Inspect kernel packages
+    command: ls -la ${ROOTDIR}/debs
+
+  - action: run
+    description: Install kernel packages
     chroot: true
     command: rm debs/*dbg*.deb || true;
              apt-get install --yes --allow-downgrades ./debs/*.deb &&

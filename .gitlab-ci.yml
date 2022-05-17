@@ -100,7 +100,7 @@ build:
     - mkdir -p out
     - echo Version ${VERSION}
     - echo ${VERSION} > out/version.txt
-    - debos --artifactdir=out --scratchsize=16G resctl-demo-ospack.yaml
+    - debos --artifactdir=out --scratchsize=16G -t "kernel_branch:debs" resctl-demo-ospack.yaml
     - debos --artifactdir=out resctl-demo-image-legacyboot.yaml
     - debos --artifactdir=out resctl-demo-image-efiboot.yaml
     - debos --artifactdir=out resctl-demo-flasher-efiboot.yaml
@@ -132,7 +132,7 @@ build-meta:
     - mkdir -p out
     - echo Version ${VERSION}
     - echo ${VERSION} > out/version.txt
-    - debos --artifactdir=out --scratchsize=16G -t "variant:resctl-demo-meta" resctl-demo-ospack.yaml
+    - debos --artifactdir=out --scratchsize=16G -t "kernel_branch:debs" -t "variant:resctl-demo-meta" resctl-demo-ospack.yaml
     - debos --artifactdir=out -t "variant:resctl-demo-meta" resctl-demo-image-efiboot.yaml
     - debos --artifactdir=out -t "variant:resctl-demo-meta" resctl-demo-flasher-efiboot.yaml
     - *deploy
