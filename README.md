@@ -113,7 +113,7 @@ The created image is private; see the steps above to make the image public.
 
 Debian system with [debos](https://github.com/go-debos/debos) installed.
 
-There are two options, see the detail below.
+There are some options to build the images, see the detail below.
 
 ### Option 1: Debian Virtual Machine
 
@@ -146,26 +146,23 @@ You may need to add the user to the `kvm` group:
 After logging out and logging back in, you are ready to run build images!
 
 
-### Option 2: Debian Docker Container
+### Option 2: Docker Container
 
 This option is best suited for users already running a Linux distribution.
 
-To use the Debos Docker image, in the setps following when you see `debos ...` instead
-pass the arguments to a docker script.
-
-For instance, to run `debos --help`, instead run:
+The requirement is docker installed on your machine and the user to be in the
+`kvm` group:
 
 ```
-docker run \
-       --rm \
-       -w /recipes \
-       -v $(pwd):/recipes \
-       -u $(id -u):$(id -g) \
-       --group-add=$(getent group kvm | cut -d : -f 3) \
-       --device /dev/kvm \
-       --security-opt label=disable \
-       go-debos/debos \
-       --help
+$ sudo usermod -a -G kvm $USER
+```
+
+To use the Docker image, run the following helper scripts to generate the flavour
+of images:
+
+```
+$ ./build-resctl-demo-images.sh
+$ ./build-resctl-demo-meta-images.sh
 ```
 
 
