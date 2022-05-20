@@ -131,6 +131,7 @@ actions:
 
   - action: apt
     description: Runtime dependencies for resctl-demo
+    recommends: true
     packages:
       - oomd
       - gnuplot-nox
@@ -143,11 +144,22 @@ actions:
       - bison
       - flex
       - pkgconf
+      - git
+      - fontconfig
+      - ghostscript
+      - imagemagick
+      - librsvg2-bin
 
   - action: run
     description: Set python3 as default
     chroot: true
     command: update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+
+  - action: run
+    description: Fix imagemagick policy configuration; see https://github.com/facebookexperimental/resctl-demo/issues/256
+    chroot: true
+    label: sed
+    command: sed -i 's/domain="coder" rights="none"/domain="coder" rights="read | write"/g' /etc/ImageMagick-*/policy.xml
 
   - action: run
     description: Install drgn from source
@@ -255,6 +267,11 @@ actions:
     chroot: true
     label: install-resctl-demo
     command: su -c /home/demo/.bin/install-resctl-demo demo
+
+  - action: run
+    description: Install Adobe fonts
+    chroot: true
+    script: scripts/install-adobe-fonts.sh
 
   - action: run
     description: Remove empty fstab
