@@ -1,19 +1,30 @@
 # resctl-demo-image-recipe
 The recipes will build the Debian-based image for the resctl-demo. The following
 documentation explains how to build the images, the documentation to deploy
-prebuilt images to a disk is contained in a seperate file [DEPLOY.md](DEPLOY.md).
+prebuilt images to a disk is contained in the [deployment instructions](DEPLOY.md).
 
 
-## Run resctl-demo on AWS EC2 cloud machine
+## Run resctl-demo image on a local machine
+See the [deployment instructions](DEPLOY.md) to download the latest images built in CI.
+
+
+## Run resctl-demo image on AWS EC2 cloud machine
 See the document [launch AWS EC2 instance](docs/aws-ec2-create-instance/README.md)
 to launch an AWS instance.
 
 
-## Image downloads
-The images built using the CI pipeline on the default branch can be downloaded
-from [images.collabora.com](https://images.collabora.com/facebook/). These images
-are also uploaded and converted to AWS using the Amazon secrets provided by the
-customer.
+## New version of resctl-demo released
+The image pipeline builds the latest published version on crates.io, so the image
+recipes always track the latest released version of resctl-demo.
+
+
+## GitHub image build
+To build a new image on GitHub, maintainers of the repository can:
+- go to https://github.com/iocost-benchmark/resctl-demo-image-recipe
+- click the `Actions` tab
+- under `Workflows` click `Build resctl-demo images`
+- press `Run workflow`, choose the `main` branch then press `Run workflow` again
+- once the workflow has completed (about an hour) you can follow the instructions in DEPLOY.md to download the new images.
 
 
 # General image information
@@ -28,37 +39,13 @@ To test the root pivot service, use `start-qemu-pivot.sh` which adds a second di
 The root pivot service will only run if the bootloader is modified to add `resctldemo.forcepivot` to the kernel cmdline parameters.
 
 
-
-
-# GitLab CI Build instructions
-
-## Requirements
-
-Before running the CI pipeline, the following repositories must be built using
-their own CI pipelines:
-
- * [resctl-demo Application](https://gitlab.collabora.com/facebook/resctl-demo)
- * [resctl-demo Linux Kernel](https://gitlab.collabora.com/facebook/resctl-demo-linux)
-
-For instructions of how to modify/update these repositories see the file `debian/README.md`
-located under the `debian/master` branch of each of the repositories above.
-
-
 ## CI pipeline
 
-All branches which are pushed to GitLab run the CI pipeline (but does not upload
+All branches which are pushed to GitHub run the CI pipeline (but does not upload
 the images to AWS) to make sure any merge requests have a "dummy run" through the
 build process.
 
-The pipeline first creates a customised Docker image for the build process. See
-the dockerfile located under `ci-image-builder/Dockerfile`.
-
-The CI pipeline downloads the build packages from the above repositories,
-specifically the artifacts of the last pipeline which passed from the `debian/master`
-branches. If the artifacts are missing, the image will fail to build. At this stage,
-the pipeline also downloads the Linux kernel payload.
-
-Next the pipeline uses `debos` to bootstrap a customised Debian system from the
+The pipeline uses `debos` to bootstrap a customised Debian system from the
 recipe located in the file `resctl-demo-ospack.yaml`. The result of this recipe
 is a packed tarball of the root filesystem also known as an ospack.
 
@@ -68,12 +55,13 @@ extracted into the disk image and other parameters like the Kernel cmdline are
 set and the bootloader installed.
 
 For pipelines running on the default branch, the compressed images are uploaded
-to the project's [image storage area](https://images.collabora.com/facebook/).
+to the workflow as artifacts. See the [deployment instructions](DEPLOY.md) for how
+to download and flash the built images.
 
 For pipelines running on the the default branch, the built image is uploaded
 to AWS and converted to an Amazon Machine Image using the script `aws-ec2/upload-image-aws-ec2.py`.
 The CI environment sets some environment variables: `EC2_ACCESS_ID`, `EC2_SECRET_KEY`,
-`EC2_REGION`, `EC2_BUCKET`. These can be modified by Collabora on request.
+`EC2_REGION`, `EC2_BUCKET`. These can be modified by contributors to the repository.
 See the documentation included inside the the script to setup the AWS account for
 images to be uploaded to.
 
@@ -95,16 +83,6 @@ set the `Assignee` to the person who should review the change. After the Merge
 Request is merged to the default branch, the pipeline will run again and upload
 the artifacts to AWS. To build and test an image locally, see the instructions
 under the heading `Local Build instructions`.
-
-If no changes to the image recipes are required but the image needs to be rebuilt
-(e.g the Linux Kernel package was updated), please wait for the downstream CI
-pipeline of the package in question to complete and then re-run the pipeline in
-this repository. To do this, go to the `CI / CD` page using the navigation bar on
-the left-hand side, then press the `Run Pipeline` button at the top of the page
-and then pressing `Run Pipeline` again on the next page. The pipeline will now
-run and the status can be monitored by going to the `CI / CD > Pipelines` page.
-
-The created image is private; see the steps above to make the image public.
 
 
 # Local Build instructions
@@ -143,7 +121,13 @@ You may need to add the user to the `kvm` group:
     $ sudo usermod -a -G kvm $USER
 
 
-After logging out and logging back in, you are ready to run build images!
+After logging out and logging back in, you are ready to build the images:
+
+    $ mkdir out
+    $ debos --artifactdir=out --scratchsize=16G resctl-demo-ospack.yaml
+    $ debos --artifactdir=out resctl-demo-image-legacyboot.yaml
+    $ debos --artifactdir=out resctl-demo-image-efiboot.yaml
+    $ debos --artifactdir=out resctl-demo-flasher-efiboot.yaml
 
 
 ### Option 2: Docker Container
@@ -164,16 +148,6 @@ of images:
 $ ./build-resctl-demo-images.sh
 $ ./build-resctl-demo-meta-images.sh
 ```
-
-
-### Build resctl-demo images
-
-    $ mkdir out
-    $ debos --artifactdir=out --scratchsize=16G resctl-demo-ospack.yaml
-    $ debos --artifactdir=out resctl-demo-image-legacyboot.yaml
-    $ debos --artifactdir=out resctl-demo-image-efiboot.yaml
-    $ debos --artifactdir=out resctl-demo-flasher-efiboot.yaml
-
 
 ### Upload AWS Legacy Boot image to AWS EC2
 
