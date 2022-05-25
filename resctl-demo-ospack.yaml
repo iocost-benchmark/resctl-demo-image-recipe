@@ -245,6 +245,10 @@ actions:
     description: Change system PRETTY_NAME
     command: sed -i "s/PRETTY_NAME=.*/PRETTY_NAME=\"{{ $variant }} test image\"/g" ${ROOTDIR}/etc/os-release
 
+  - action: run
+    description: Add variant to system metadata
+    command: echo "VARIANT={{ $variant }}" >> ${ROOTDIR}/etc/os-release
+
   - action: download
     description: Download linux payload tarball
     url: https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.16.11.tar.xz
