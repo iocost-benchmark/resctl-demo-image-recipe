@@ -41,12 +41,23 @@ while : ; do
   fi
 done
 
-# TODO figure out block device & build filename from model /sys/block/*/device/model
+# find model of drive containing rootfs
+ROOT_DEV=$(findmnt -n -o SOURCE / | head -n1)
+BLOCK_DEV_NAME=$(lsblk -n -d -o pkname $ROOT_DEV | head -n1)
+MODEL=$(cat /sys/block/$BLOCK_DEV_NAME/device/model | head -n1)
+# remove trailing spaces & replace non-alphanumeric characters with '_'
+MODEL=$(echo $MODEL | sed -e 's/^[[:space:]]*//')
+MODEL=$(echo $MODEL | sed 's/[^a-zA-Z0-9]/_/g')
+
+# create the output directory
+MODEL_DIR="$OUTPUT_DIR/$MODEL"
+mkdir -p "$MODEL_DIR"
+
 TIMESTAMP=$(date "+%Y_%m_%d-%H_%M_%S")
 FILENAME="resctl-bench-result_$TIMESTAMP"
-RESULT_JSON="$OUTPUT_DIR/$FILENAME.json.gz"
-RESULT_SUMMARY="$OUTPUT_DIR/$FILENAME.txt"
-RESULT_PDF="$OUTPUT_DIR/$FILENAME.pdf"
+RESULT_JSON="$MODEL_DIR/$FILENAME.json.gz"
+RESULT_SUMMARY="$MODEL_DIR/$FILENAME.txt"
+RESULT_PDF="$MODEL_DIR/$FILENAME.pdf"
 echo "Saving result to $RESULT_JSON"
 
 # Exit on error
@@ -58,5 +69,5 @@ sudo resctl-bench -r "$RESULT_JSON" format iocost-tune:pdf=$RESULT_PDF >/dev/nul
 sudo resctl-bench -r "$RESULT_JSON" format | sudo tee "$RESULT_SUMMARY" >/dev/null
 
 echo "resctl-bench finshed successfully!"
-echo "Results saved to USB stick as $FILENAME"
+echo "Results saved to USB stick as $MODEL/$FILENAME"
 cleanup
