@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Copyright © 2020 Collabora Ltd.
 # SPDX-License-Identifier: MIT
 
@@ -38,18 +38,26 @@ done
 
 # TODO figure out block device & build filename from model /sys/block/*/device/model
 TIMESTAMP=$(date "+%Y_%m_%d-%H_%M_%S")
-OUTPUT_FILENAME_FINAL="resctl-bench-result_$TIMESTAMP.json.gz"
-echo "Saving result to $OUTPUT_FILENAME_FINAL"
+FILENAME="resctl-bench-result_$TIMESTAMP"
+RESULT_JSON="$OUTPUT_DIR/$FILENAME.json.gz"
+RESULT_SUMMARY="$OUTPUT_DIR/$FILENAME.txt"
+RESULT_PDF="$OUTPUT_DIR/$FILENAME.pdf"
+echo "Saving result to $RESULT_JSON"
 
-# start resctl-bench
-sudo resctl-bench -r "$OUTPUT_DIR/$OUTPUT_FILENAME_FINAL" run iocost-tune
+# Create benchmark using resctl-bench
+sudo resctl-bench -r "$RESULT_JSON" run iocost-tune
+
 if [ $? != 0 ] ; then
   echo "resctl-bench failed."
   echo "launching shell to allow investigation..."
   bash
 else
+  # Silently convert results to PDF/TXT
+  sudo resctl-bench -r "$RESULT_JSON" format iocost-tune:pdf=$RESULT_PDF >/dev/null
+  sudo resctl-bench -r "$RESULT_JSON" format | sudo tee "$RESULT_SUMMARY" >/dev/null
+
   echo "resctl-bench finshed successfully."
-  echo "Result saved on USB stick as $OUTPUT_FILENAME_FINAL"
+  echo "Result saved on USB stick as $FILENAME"
 fi
 
 # unmount usb stick
