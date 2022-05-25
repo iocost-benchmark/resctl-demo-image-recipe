@@ -1,8 +1,18 @@
 #!/bin/bash
 # Copyright © 2020 Collabora Ltd.
 # SPDX-License-Identifier: MIT
-
 OUTPUT_DIR="/mnt/results"
+
+function cleanup {
+  sudo rm -f /var/lib/resctl-demo/bench.json
+  sudo umount "$OUTPUT_DIR" >/dev/null 2>&1 || true
+}
+
+# Make sure the results drive is unmounted on exit
+trap cleanup SIGINT
+
+# Silently unmount results usb stick if still connected
+cleanup
 
 # make sure base dir perm matches what resctl-demo would create
 RD_DIR="/var/lib/resctl-demo"
@@ -10,8 +20,6 @@ sudo mkdir -p ${RD_DIR}
 sudo chown root.sudo ${RD_DIR}
 sudo chmod u+w,g+ws ${RD_DIR}
 
-echo ""
-echo ""
 echo "Starting resctl-bench..."
 sleep 5
 
@@ -26,14 +34,11 @@ while : ; do
   dialog --clear \
     --backtitle "resctl-bench" \
     --title "Insert flasher USB" \
-    --yesno "Could not mount flasher USB. Please connect flasher USB to the machine and press enter to retry.\n\nChoose no to shutdown machine." \
+    --yesno "Could not mount flasher USB. Please connect flasher USB to the machine and press enter to retry.\n\nChoose no to exit to the shell." \
     20 0
   if [ $? != 0 ] ; then
-      echo "Operation cancelled by user. Shutting down."
-      sleep 5
-      sudo shutdown -h now
+    exit 1
   fi
-  clear
 done
 
 # TODO figure out block device & build filename from model /sys/block/*/device/model
@@ -44,25 +49,14 @@ RESULT_SUMMARY="$OUTPUT_DIR/$FILENAME.txt"
 RESULT_PDF="$OUTPUT_DIR/$FILENAME.pdf"
 echo "Saving result to $RESULT_JSON"
 
-# Create benchmark using resctl-bench
+# Exit on error
+set -e
+
+# Create benchmark using resctl-bench & convert results to PDF/TXT
 sudo resctl-bench -r "$RESULT_JSON" run iocost-tune
+sudo resctl-bench -r "$RESULT_JSON" format iocost-tune:pdf=$RESULT_PDF >/dev/null
+sudo resctl-bench -r "$RESULT_JSON" format | sudo tee "$RESULT_SUMMARY" >/dev/null
 
-if [ $? != 0 ] ; then
-  echo "resctl-bench failed."
-  echo "launching shell to allow investigation..."
-  bash
-else
-  # Silently convert results to PDF/TXT
-  sudo resctl-bench -r "$RESULT_JSON" format iocost-tune:pdf=$RESULT_PDF >/dev/null
-  sudo resctl-bench -r "$RESULT_JSON" format | sudo tee "$RESULT_SUMMARY" >/dev/null
-
-  echo "resctl-bench finshed successfully."
-  echo "Result saved on USB stick as $FILENAME"
-fi
-
-# unmount usb stick
-sudo umount "$OUTPUT_DIR"
-echo ""
-echo ""
-read -p "Press return to shutdown computer..."
-sudo shutdown -h now
+echo "resctl-bench finshed successfully!"
+echo "Results saved to USB stick as $FILENAME"
+cleanup
