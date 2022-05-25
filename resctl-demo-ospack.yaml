@@ -110,11 +110,6 @@ actions:
       - wget
 
   - action: apt
-    description: Build dependencies for resctl-demo
-    packages:
-      - cargo
-
-  - action: apt
     description: Build dependencies for drgn
     packages:
       - autoconf
@@ -153,12 +148,6 @@ actions:
     description: Set python3 as default
     chroot: true
     command: update-alternatives --install /usr/bin/python python /usr/bin/python3 1
-
-  - action: run
-    description: Install resctl-demo from source
-    chroot: true
-    command: TMPDIR=/var/tmp cargo install rd-hashd rd-agent resctl-demo resctl-bench;
-             cd ~/.cargo/bin && mv rd-hashd rd-agent resctl-demo resctl-bench /usr/local/bin
 
   - action: run
     description: Install drgn from source
@@ -260,6 +249,12 @@ actions:
     description: Fix demo user home permissions
     chroot: true
     command: chown -R demo:demo /home/demo
+
+  - action: run
+    description: Install resctl-demo
+    chroot: true
+    label: install-resctl-demo
+    command: su -c /home/demo/.bin/install-resctl-demo demo
 
   - action: run
     description: Remove empty fstab

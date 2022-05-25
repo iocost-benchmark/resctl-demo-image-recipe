@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+# Install rust stable
+RUSTUP_ARGS="-y"
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- $RUSTUP_ARGS
+
+# Add rust to environment
+source $HOME/.cargo/env
+echo "source \$HOME/.cargo/env" >> $HOME/.bashrc
+
+# Install resctl-demo
+export TMPDIR=/var/tmp
+cargo install --locked rd-hashd rd-agent resctl-demo resctl-bench
