@@ -51,12 +51,15 @@ while : ; do
     shutdown -h now
   fi
 
+  # more information about the disk choice
+  CHOICE_INFO=$(lsblk -n -d -o MODEL,SIZE,SERIAL $CHOICE)
+
   # confirm
   dialog --clear \
     --backtitle "resctl-demo installer" \
     --title "Choose disk to install resctl-demo" \
     --defaultno \
-    --yesno "You have chosen to install resctl-demo to $CHOICE\n\nWARNING: the disk will be overwritten! Choose no to go back to the main menu." \
+    --yesno "You have chosen to install resctl-demo to $CHOICE ($CHOICE_INFO)\nWARNING: the disk will be overwritten! Choose no to go back to the main menu." \
     20 0
 
   # if the user cancels by mistake, show the dialog again. otherwise break the loop
