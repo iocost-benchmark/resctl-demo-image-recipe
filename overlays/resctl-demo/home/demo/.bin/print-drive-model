@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Print drive model
+ROOT_DEV=$(findmnt -n -o SOURCE / | head -n1)
+BLOCK_DEV_NAME=$(lsblk -n -d -o pkname $ROOT_DEV | head -n1)
+MODEL=$(cat /sys/block/$BLOCK_DEV_NAME/device/model | head -n1 | sed -e 's/^[[:space:]]*//')
+echo "Operating on block device model: $MODEL"

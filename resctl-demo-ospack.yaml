@@ -262,6 +262,10 @@ actions:
     destination: /usr/local/resctl-demo/linux.tar
 
   - action: run
+    description: Run print-drive-model at boot
+    command: echo "\$HOME/.bin/print-drive-model" >> ${ROOTDIR}/home/demo/.bashrc
+
+  - action: run
     description: Fix demo user home permissions
     chroot: true
     command: chown -R demo:demo /home/demo
