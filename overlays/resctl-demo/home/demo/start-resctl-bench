@@ -51,7 +51,7 @@ MODEL=$(echo $MODEL | sed 's/[^a-zA-Z0-9]/_/g')
 
 # create the output directory
 MODEL_DIR="$OUTPUT_DIR/$MODEL"
-mkdir -p "$MODEL_DIR"
+sudo mkdir -p "$MODEL_DIR"
 
 TIMESTAMP=$(date "+%Y_%m_%d-%H_%M_%S")
 FILENAME="resctl-bench-result_$TIMESTAMP"
