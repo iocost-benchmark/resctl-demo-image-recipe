@@ -32,6 +32,8 @@ actions:
       - parted
       - btrfs-progs
       - dialog
+      - systemd-boot
+      - systemd-boot-efi
 
   - action: run
     description: Set hostname to {{ $variant }}

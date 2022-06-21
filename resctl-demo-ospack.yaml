@@ -64,6 +64,12 @@ actions:
              apt-get install --yes --allow-downgrades ./debs/*.deb &&
              rm -rf /debs
 
+  - action: apt
+    description: Install bootloader packages
+    packages:
+      - systemd-boot
+      - systemd-boot-efi
+
   - action: run
     description: Mark custom packages as hold
     chroot: true
