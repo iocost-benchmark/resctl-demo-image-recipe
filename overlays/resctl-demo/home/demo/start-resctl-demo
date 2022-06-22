@@ -4,6 +4,9 @@
 
 set -x
 
+# Add rust bin to the path
+PATH=$HOME/.cargo/bin/:$PATH
+
 # make sure base dir perm matches what resctl-demo would create
 RD_DIR="/var/lib/resctl-demo"
 sudo mkdir -p ${RD_DIR}

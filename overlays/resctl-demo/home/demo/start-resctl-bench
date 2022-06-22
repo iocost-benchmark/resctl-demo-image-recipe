@@ -8,6 +8,9 @@ function cleanup {
   sudo umount "$OUTPUT_DIR" >/dev/null 2>&1 || true
 }
 
+# Add rust bin to the path
+PATH=$HOME/.cargo/bin/:$PATH
+
 # Make sure the results drive is unmounted on exit
 trap cleanup SIGINT
 
