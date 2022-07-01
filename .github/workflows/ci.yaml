@@ -2,9 +2,9 @@ name: Build resctl-demo images
 on:
   pull_request:
   push:
-  # Build every 1st day of the month since artifacts only last 90-days
+  # Build at 04:00am every Monday
   schedule:
-    - cron: "* * 1 * *"
+    - cron: "0 4 * * 1"
   workflow_dispatch:
 
 jobs:
