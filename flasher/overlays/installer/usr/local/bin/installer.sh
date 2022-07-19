@@ -1,31 +1,31 @@
 #!/bin/bash
 
-# wait for device nodes to be created
-udevadm settle
-
-# find the boot device
-FLASHER_STORAGE_MNT="/mnt/flasher-storage"
-FLASHER_STORAGE_DEV=$(findmnt -n -o SOURCE ${FLASHER_STORAGE_MNT})
-FLASHER_DEV="/dev/$(lsblk -n -o PKNAME ${FLASHER_STORAGE_DEV})"
-
-# create a list of potential target devices
-declare -a CHOICES
-for DEV_PATH in $(lsblk -n -d -o PATH); do
-
-  # check this device is not the boot device
-  [ "${DEV_PATH}" == "${FLASHER_DEV}" ] && continue
-
-  # add drive to the choice dialog
-  DEV_INFO=$(lsblk -n -d -o MODEL,SIZE,SERIAL ${DEV_PATH} | tr -s ' ')
-  CHOICES+=("${DEV_PATH}" "${DEV_INFO}")
-done
-
-# add extra choices
-CHOICES+=("shell" "Drop to a shell")
-CHOICES+=("quit" "Quit (Shutdown Machine without modifications)")
-
 # show choice dialog - loop until user confirms
 while : ; do
+  # wait for device nodes to be created
+  udevadm settle
+
+  # find the boot device
+  FLASHER_STORAGE_MNT="/mnt/flasher-storage"
+  FLASHER_STORAGE_DEV=$(findmnt -n -o SOURCE ${FLASHER_STORAGE_MNT})
+  FLASHER_DEV="/dev/$(lsblk -n -o PKNAME ${FLASHER_STORAGE_DEV})"
+
+  # create a list of potential target devices
+  declare -a CHOICES
+  for DEV_PATH in $(lsblk -n -d -o PATH); do
+
+    # check this device is not the boot device
+    [ "${DEV_PATH}" == "${FLASHER_DEV}" ] && continue
+
+    # add drive to the choice dialog
+    DEV_INFO=$(lsblk -n -d -o MODEL,SIZE,SERIAL ${DEV_PATH} | tr -s ' ')
+    CHOICES+=("${DEV_PATH}" "${DEV_INFO}")
+  done
+
+  # add extra choices
+  CHOICES+=("shell" "Drop to a shell")
+  CHOICES+=("quit" "Quit (Shutdown Machine without modifications)")
+
   CHOICE=$(dialog \
     --clear \
     --backtitle "resctl-demo installer" \
