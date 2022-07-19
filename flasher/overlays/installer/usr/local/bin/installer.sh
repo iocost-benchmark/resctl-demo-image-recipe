@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# wait for device nodes to be created
+udevadm settle
+
 # find the boot device
 FLASHER_STORAGE_MNT="/mnt/flasher-storage"
 FLASHER_STORAGE_DEV=$(findmnt -n -o SOURCE ${FLASHER_STORAGE_MNT})
