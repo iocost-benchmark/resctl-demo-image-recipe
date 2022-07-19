@@ -12,6 +12,7 @@ while : ; do
 
   # create a list of potential target devices
   declare -a CHOICES
+  CHOICES=()
   for DEV_PATH in $(lsblk -n -d -o PATH); do
 
     # check this device is not the boot device
