@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+RESCTL_DEMO_SRC=$1
+
 # Install rust stable
 RUSTUP_ARGS="-y"
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- $RUSTUP_ARGS
@@ -9,6 +11,14 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- $RUSTUP_ARG
 source $HOME/.cargo/env
 echo "source \$HOME/.cargo/env" >> $HOME/.bashrc
 
+# Append arguments to cargo install
+CARGO_ARGS=""
+if [ "$RESCTL_DEMO_SRC" = "git HEAD" ] ; then
+  CARGO_ARGS="--git https://github.com/facebookexperimental/resctl-demo.git"
+fi
+
+echo "Building resctl-demo using source $RESCTL_DEMO_SRC"
+
 # Install resctl-demo
 export TMPDIR=/var/tmp
-cargo install --locked rd-hashd rd-agent resctl-demo resctl-bench
+cargo install --locked $CARGO_ARGS rd-hashd rd-agent resctl-demo resctl-bench

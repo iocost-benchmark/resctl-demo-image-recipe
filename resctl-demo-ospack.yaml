@@ -3,6 +3,7 @@
 {{ $mirror := or .mirror "https://deb.debian.org/debian" }}
 {{ $suite := or .suite "bookworm" }}
 {{ $kernel_branch := or .kernel_branch "resctl-demo" }}
+{{ $resctl_demo_src := or .resctl_demo_src "crates.io" }}
 
 architecture: amd64
 
@@ -280,7 +281,7 @@ actions:
     description: Install resctl-demo
     chroot: true
     label: install-resctl-demo
-    command: su -c /home/demo/.bin/install-resctl-demo demo
+    command: su demo -c "/home/demo/.bin/install-resctl-demo {{ $resctl_demo_src }}"
 
   - action: run
     description: Install Adobe fonts

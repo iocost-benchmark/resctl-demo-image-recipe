@@ -24,6 +24,7 @@ To build a new image on GitHub, maintainers of the repository can:
 - click the `Actions` tab
 - under `Workflows` click `Build resctl-demo images`
 - press `Run workflow`, choose the `main` branch then press `Run workflow` again
+- choose the resctl-demo source (by default it uses the latest crates.io tag, but you can also choose git HEAD)
 - once the workflow has completed (about an hour) you can follow the instructions in DEPLOY.md to download the new images.
 
 
@@ -179,3 +180,9 @@ is different:
 
 - `git grep variant`
 - `git grep resctl-demo-meta`
+
+
+### Choose resctl-demo source
+
+For the ospack, append `-t "resctl_demo_src:git HEAD"` to install the latest
+version of resctl-demo from the Git repository.

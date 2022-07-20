@@ -6,6 +6,13 @@ on:
   schedule:
     - cron: "0 4 * * 1"
   workflow_dispatch:
+    inputs:
+      resctl_demo_src:
+        type: choice
+        description: resctl-demo source
+        options:
+        - crates.io
+        - git HEAD
 
 jobs:
   build_image:
@@ -58,7 +65,7 @@ jobs:
 
       # ospack
       - name: Build ospack
-        run: sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} --template-var=kernel_branch:debs --scratchsize=16G resctl-demo-ospack.yaml
+        run: sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} --template-var="resctl_demo_src:${{ github.event.inputs.resctl_demo_src }}" --template-var=kernel_branch:debs --scratchsize=16G resctl-demo-ospack.yaml
 
 
       # efi image
