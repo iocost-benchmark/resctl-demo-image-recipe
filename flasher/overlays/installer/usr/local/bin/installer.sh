@@ -103,6 +103,7 @@ BOOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed 
 ROOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "${ROOTFS_PART_NO}p")
 
 # Regenerate btrfs fsid
+echo "Regenerating rootfs Filesystem UUID"
 ROOTFS_BLKID_OLD=$(blkid -s UUID -o value ${ROOTFS_PART})
 echo "Old blkid $ROOTFS_BLKID_OLD"
 btrfstune -m ${ROOTFS_PART}
