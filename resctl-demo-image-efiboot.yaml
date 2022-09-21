@@ -23,6 +23,7 @@ actions:
         options:
           - rw
           - discard=async
+          - x-systemd.growfs
       - mountpoint: /boot/efi
         partition: EFI
     partitions:
@@ -34,6 +35,8 @@ actions:
         end: 256M
         flags: [ boot ]
       - name: system
+        partlabel: system
+        parttype: 4f68bce3-e8cd-4db1-96e7-fbcaf984b709
         fs: btrfs
         start: 256M
         end: 100%
