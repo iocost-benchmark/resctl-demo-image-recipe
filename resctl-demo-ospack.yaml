@@ -115,6 +115,7 @@ actions:
       - tmux
       - vim
       - wget
+      - systemd-resolved
 
   - action: apt
     description: Build dependencies for drgn
