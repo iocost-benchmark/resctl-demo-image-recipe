@@ -235,6 +235,10 @@ actions:
     description: Configuration for systemd-resolved
     source: overlays/systemd-resolved
 
+  - action: overlay
+    description: Configuration for systemd-repart
+    source: overlays/systemd-repart
+
   - action: run
     description: Setup root user
     chroot: true

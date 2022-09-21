@@ -98,21 +98,9 @@ if [ ${BMAP_EXITCODE} != 0 ] ; then
   shutdown -h now
 fi
 
-# Fix GPT to take the full size
-sleep 10
-echo fix | parted ---pretend-input-tty ${CHOICE} print
-sync
-sleep 10
-
 ROOTFS_PART_NO=2
 BOOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "1p")
 ROOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "${ROOTFS_PART_NO}p")
-
-# Expand rootfs partition table
-echo "Expanding root partition ${ROOTFS_PART}"
-parted -s ${CHOICE} resizepart ${ROOTFS_PART_NO} 100%
-sync
-sleep 10
 
 # Regenerate btrfs fsid
 ROOTFS_BLKID_OLD=$(blkid -s UUID -o value ${ROOTFS_PART})
@@ -129,11 +117,6 @@ echo "New blkid $ROOTFS_BLKID_NEW"
 ROOTFS_MNT="/mnt/rootfs"
 mkdir -p ${ROOTFS_MNT}
 mount ${ROOTFS_PART} ${ROOTFS_MNT}
-
-# Expand rootfs
-btrfs filesystem resize max ${ROOTFS_MNT}
-sync
-sleep 10
 
 # Mount boot
 BOOTFS_MNT="${ROOTFS_MNT}/boot/efi"
