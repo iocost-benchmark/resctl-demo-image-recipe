@@ -5,8 +5,8 @@ ROOT1_IMG="resctl-demo-flasher-efiboot-testroot1.img"
 ROOT2_IMG="resctl-demo-flasher-efiboot-testroot2.img"
 
 # create a disk to install to
-qemu-img create -f qcow2 ${ROOT1_IMG} 50G
-qemu-img create -f qcow2 ${ROOT2_IMG} 50G
+qemu-img create -f qcow2 ${ROOT1_IMG} 512G
+qemu-img create -f qcow2 ${ROOT2_IMG} 512G
 
 qemu-system-x86_64 \
   -machine type=q35,accel=kvm \
