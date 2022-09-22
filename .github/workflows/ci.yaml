@@ -117,7 +117,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Legacy boot image to AWS EC2
-        if: matrix.variant == 'resctl-demo'
+        if: github.ref == 'refs/heads/main' && matrix.variant == 'resctl-demo'
         env:
           EC2_ACCESS_ID: ${{ secrets.EC2_ACCESS_ID }}
           EC2_SECRET_KEY: ${{ secrets.EC2_SECRET_KEY }}
