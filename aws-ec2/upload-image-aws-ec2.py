@@ -54,6 +54,7 @@
 
 import argparse
 import logging
+import uuid
 import os
 from libcloud import storage
 from libcloud import compute
@@ -88,9 +89,7 @@ aws_ec2 = aws_ec2_driver(EC2_ACCESS_ID, EC2_SECRET_KEY, region=EC2_REGION)
 # TODO aws iam create-role if needed
 # TODO aws iam put-role-policy if needed
 
-# TODO check image file exists and print some info before uploading
-# TODO input from commandline
-object_name = 'resctl-demo-image.vmdk'
+object_name = 'resctl-demo-image_{uuid}.vmdk'.format(uuid=uuid.uuid4())
 
 # TODO check if bucket exists and create if needed
 # TODO creating buckets needs a specific driver for the region
@@ -148,7 +147,7 @@ log.info("creating EC2 AMI complete; id=%s", image_id)
 
 # TODO make image public: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sharingamis-intro.html
 
-# delete file from s3
+# delete image file from s3
 if args.image_file != '':
     log.info('deleting %s from container %s',
               obj.name,
