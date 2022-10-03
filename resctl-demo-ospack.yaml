@@ -98,7 +98,7 @@ actions:
   - action: apt
     description: Useful userspace packages
     packages:
-      - atop
+      - htop
       - bc
       - bcc
       - curl
