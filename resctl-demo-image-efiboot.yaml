@@ -60,7 +60,6 @@ actions:
       - network-manager
       - firmware-atheros
       - firmware-brcm80211
-      - firmware-intelwimax
       - firmware-iwlwifi
       - firmware-linux
       - firmware-realtek
