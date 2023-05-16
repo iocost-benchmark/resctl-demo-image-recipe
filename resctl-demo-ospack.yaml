@@ -19,6 +19,7 @@ actions:
       - main
       - contrib
       - non-free
+      - non-free-firmware
     mirror: {{ $mirror }}
     variant: minbase
 
