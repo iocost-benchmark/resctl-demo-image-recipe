@@ -82,6 +82,8 @@ actions:
     packages:
       - iproute2
       - iputils-ping
+      - network-manager
+      - wpasupplicant
 
   - action: apt
     description: openssh-server
