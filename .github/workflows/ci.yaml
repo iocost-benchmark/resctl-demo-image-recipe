@@ -115,20 +115,3 @@ jobs:
             out/${{ matrix.variant }}-image-legacyboot.img.gz.sha256
             out/${{ matrix.variant }}-image-legacyboot.img.gz
           if-no-files-found: error
-
-      - name: Upload Legacy boot image to AWS EC2
-        if: github.ref == 'refs/heads/main' && matrix.variant == 'resctl-demo'
-        env:
-          EC2_ACCESS_ID: ${{ secrets.EC2_ACCESS_ID }}
-          EC2_SECRET_KEY: ${{ secrets.EC2_SECRET_KEY }}
-          EC2_REGION: ${{ secrets.EC2_REGION }}
-          EC2_BUCKET: ${{ secrets.EC2_BUCKET }}
-        run: |
-          VERSION="${GITHUB_REF##*/}-$(date '+%Y%m%d.%H%M%S')-${GITHUB_SHA::7}"
-          echo "Version: $VERSION"
-
-          pip3 install --requirement requirements.txt
-          python3 aws-ec2/cleanup-aws-ec2.py
-          python3 aws-ec2/upload-image-aws-ec2.py --ami-name="${{ matrix.variant }}/bookworm/${VERSION}" \
-                                                  --ami-description="${{ matrix.variant }} version ${VERSION}" \
-                                                  --image-file="out/resctl-demo-image-legacyboot.vmdk"
