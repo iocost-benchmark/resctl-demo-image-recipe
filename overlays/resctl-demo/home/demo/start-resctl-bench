@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 OUTPUT_DIR="/mnt/results"
 LOG_DIR="$OUTPUT_DIR/logs"
+LOG_FILE="$LOG_DIR/resctl-bench_trace.log"
 LOCKFILE="$LOG_DIR/resctl-bench.lk"
 
 function cleanup {
@@ -76,10 +77,9 @@ sudo touch ${LOCKFILE}
   echo "Log(terminal, dmesg, journal) will be saved to ${LOG_DIR}"
   sudo sh -c "echo ${BASHPID} > ${LOCKFILE}"
 
-  export LOG_DUMP_FILE=${LOG_DIR}/resctl_terminal2.log
 # Create benchmark using resctl-bench & convert results to PDF/TXT
   for ((i = 0; i < 10; i++)); do
-    if sudo --preserve-env resctl-bench -r "$RESULT_JSON" run iocost-tune; then
+    if sudo --preserve-env resctl-bench -r "$RESULT_JSON" --logfile=$LOG_FILE run iocost-tune; then
       break
     fi
   done
@@ -100,6 +100,8 @@ sudo touch ${LOCKFILE}
       sudo sh -c "journalctl -b > $LOG_DIR/resctl_journal.log"
     fi
   done
+  sudo tar -zcf resctl-benchmark.tar.gz $RD_DIR
+  sudo cp resctl-benchmark.tar.gz $LOG_DIR
 ) &
 
 wait
