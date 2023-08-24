@@ -34,7 +34,8 @@ jobs:
           sudo apt-get install -y debian-archive-keyring \
                                   debos \
                                   libostree-dev \
-                                  qemu-utils
+                                  qemu-utils \
+                                  pigz
 
       - name: Setup go
         uses: actions/setup-go@v4
