@@ -124,7 +124,7 @@ actions:
   - action: run
     description: Compress {{ $image }}.img
     postprocess: true
-    command: pigz -f -k "$ARTIFACTDIR/{{ $image }}.img"
+    command: pigz -f "$ARTIFACTDIR/{{ $image }}.img"
 
   - action: run
     description: Checksum for {{ $image }}.img.gz
