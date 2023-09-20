@@ -33,6 +33,7 @@ actions:
       - btrfs-progs
       - dialog
       - systemd-boot
+      - kexec-tools
       - systemd-boot-efi
 
   - action: run

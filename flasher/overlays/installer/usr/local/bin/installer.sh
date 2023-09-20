@@ -136,14 +136,50 @@ sed -i "s/$ROOTFS_BLKID_OLD/$ROOTFS_BLKID_NEW/g" $ROOTFS_MNT/etc/kernel/cmdline
 # Install lockfile inside rootfs to disable pivot on first boot
 touch ${ROOTFS_MNT}/etc/resctl-demo/PIVOT_COMPLETE
 
-# Unmount rootfs
-umount ${BOOTFS_PART}
-umount ${ROOTFS_PART}
 sync
 
 # complete
-echo ""
-echo ""
 echo "Installation complete."
-read -p "Press return to restart computer..."
+
+declare -a CHOICES
+CHOICES=()
+CHOICES+=("shutdown" "Shutdown the system")
+CHOICES+=("pivot" "Boot to installed image)")
+
+POST_CHOICE=$(dialog \
+  --clear \
+  --backtitle "resctl-demo installer" \
+  --title "Boot to installed image or shutdown" \
+  --menu "" \
+  0 0 \
+  10 \
+  "${CHOICES[@]}" \
+  2>&1 >/dev/tty)
+
+pivot_kernel=
+pivot_initrd=
+pivot_cmdline=
+
+if [[ ${POST_CHOICE} == "pivot" ]]; then
+ while read -r key value; do
+    if [[ "$key" = "linux" ]]; then
+      pivot_kernel="${BOOTFS_MNT}${value}";
+    elif [[ "$key" = "initrd" ]]; then
+      pivot_initrd="${BOOTFS_MNT}${value}";
+    elif [[ "$key" = "options" ]]; then
+      pivot_cmdline="$value";
+    fi
+  done <<< $(cat ${BOOTFS_MNT}/loader/entries/*.conf)
+
+  echo "kexec with kernel:$pivot_kernel initrd:$pivot_initrd cmdline:$pivot_cmdline"
+
+  kexec  -l "$pivot_kernel" --initrd="$pivot_initrd" --command-line="$pivot_cmdline"
+  kexec -e
+
+elif [[ ${POST_CHOICE} == "shutdown" ]]; then
+    umount ${BOOTFS_PART}
+    umount ${ROOTFS_PART}
+    shutdown -r now
+fi
+
 shutdown -r now
