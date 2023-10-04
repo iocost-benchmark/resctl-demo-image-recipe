@@ -88,7 +88,7 @@ jobs:
       # efi flasher
       - name: Build ${{ matrix.variant }}-flasher-efiboot
         run: |
-          sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} resctl-demo-flasher-efiboot.yaml
+          sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} --template-var=kernel_branch:debs resctl-demo-flasher-efiboot.yaml
 
       - name: Publish ${{ matrix.variant }}-flasher-efiboot
         uses: actions/upload-artifact@v3
