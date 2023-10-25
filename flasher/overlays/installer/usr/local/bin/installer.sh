@@ -144,7 +144,7 @@ echo "Installation complete."
 declare -a CHOICES
 CHOICES=()
 CHOICES+=("shutdown" "Shutdown the system")
-CHOICES+=("pivot" "Boot to installed image)")
+CHOICES+=("pivot" "Boot to installed image")
 
 POST_CHOICE=$(dialog \
   --clear \
@@ -174,7 +174,12 @@ if [[ ${POST_CHOICE} == "pivot" ]]; then
   echo "kexec with kernel:$pivot_kernel initrd:$pivot_initrd cmdline:$pivot_cmdline"
 
   kexec  -l "$pivot_kernel" --initrd="$pivot_initrd" --command-line="$pivot_cmdline"
-  kexec -e
+  if [ $? -eq 0 ]; then
+    kexec -e
+  else
+    echo "Failed to kexec..."
+    bash
+  fi
 
 elif [[ ${POST_CHOICE} == "shutdown" ]]; then
     umount ${BOOTFS_PART}
