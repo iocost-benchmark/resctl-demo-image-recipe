@@ -4,6 +4,7 @@
 {{ $suite := or .suite "bookworm" }}
 {{ $kernel_branch := or .kernel_branch "resctl-demo" }}
 {{ $resctl_demo_src := or .resctl_demo_src "crates.io" }}
+{{ $version := or .version "local" }}
 
 architecture: amd64
 
@@ -34,6 +35,11 @@ actions:
       - sudo
       - systemd-sysv
       - udev
+
+  - action: run
+    description: Add version metadata to /etc/os-release
+    command: |
+      echo "IMAGE_VERSION={{ $version }}" >> ${ROOTDIR}/etc/os-release
 
 {{ if eq $kernel_branch "debs" }}
   # Use the kernel package from the filesystem

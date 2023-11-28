@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# get version from /etc/os-release
+source /etc/os-release
+
 # show choice dialog - loop until user confirms
 while : ; do
   # wait for device nodes to be created
@@ -77,6 +80,7 @@ done
 # install the image
 echo "-----------"
 echo "resctl-demo"
+echo "version: $IMAGE_VERSION"
 echo "-----------"
 echo ""
 echo "Installing resctl-demo to ${CHOICE}; do not turn your computer off."
@@ -171,6 +175,7 @@ if [[ ${POST_CHOICE} == "pivot" ]]; then
     fi
   done <<< $(cat ${BOOTFS_MNT}/loader/entries/*.conf)
 
+  echo "version: $IMAGE_VERSION"
   echo "kexec with kernel:$pivot_kernel initrd:$pivot_initrd cmdline:$pivot_cmdline"
 
   kexec  -l "$pivot_kernel" --initrd="$pivot_initrd" --command-line="$pivot_cmdline"
