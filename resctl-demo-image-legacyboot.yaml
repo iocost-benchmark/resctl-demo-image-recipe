@@ -4,6 +4,7 @@
 {{ $imagesize := or .imagesize "32GB" }}
 {{ $cmdline := or .cmdline "root=LABEL=system console=tty0 console=ttyS0,115200n1 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1 mem=16G" }}
 {{ $pack := or .pack "true" }}
+{{ $version := or .version "local" }}
 
 architecture: amd64
 

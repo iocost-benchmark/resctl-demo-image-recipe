@@ -5,6 +5,7 @@
 {{ $suite := or .suite "bookworm" }}
 {{ $pack := or .pack "true" }}
 {{ $kernel_branch := or .kernel_branch "resctl-demo" }}
+{{ $version := or .version "local" }}
 
 architecture: amd64
 
@@ -35,6 +36,11 @@ actions:
       - systemd-boot
       - kexec-tools
       - systemd-boot-efi
+
+  - action: run
+    description: Add version metadata to /etc/os-release
+    command: |
+      echo "IMAGE_VERSION={{ $version }}" >> ${ROOTDIR}/etc/os-release
 
 {{ if eq $kernel_branch "debs" }}
   # Use the kernel package from the filesystem
