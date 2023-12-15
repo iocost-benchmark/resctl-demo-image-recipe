@@ -165,6 +165,10 @@ pivot_initrd=
 pivot_cmdline=
 
 if [[ ${POST_CHOICE} == "pivot" ]]; then
+  # Debugging
+  echo "Installed boot device: $BOOTFS_PART"
+  echo "Installed root device: $ROOTFS_PART"
+
  while read -r key value; do
     if [[ "$key" = "linux" ]]; then
       pivot_kernel="${BOOTFS_MNT}${value}";
