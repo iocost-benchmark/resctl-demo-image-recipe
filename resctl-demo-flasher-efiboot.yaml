@@ -37,6 +37,13 @@ actions:
       - kexec-tools
       - systemd-boot-efi
 
+  - action: apt
+    description: Additional debug packages
+    recommends: false
+    packages:
+      - kmod
+      - busybox
+
   - action: run
     description: Add version metadata to /etc/os-release
     command: |
