@@ -121,12 +121,29 @@ echo "New blkid $ROOTFS_BLKID_NEW"
 # Mount rootfs
 ROOTFS_MNT="/mnt/rootfs"
 mkdir -p ${ROOTFS_MNT}
-mount ${ROOTFS_PART} ${ROOTFS_MNT}
+mount -v ${ROOTFS_PART} ${ROOTFS_MNT}
+
+MOUNT_EXITCODE=$?
+# check if mount failed
+if [ ${MOUNT_EXITCODE} != 0 ] ; then
+  echo ""
+  echo "mount /dev/p2 /mnt/rootfs Operation failed."
+  exit 1
+fi
+
 
 # Mount boot
 BOOTFS_MNT="${ROOTFS_MNT}/boot/efi"
 mkdir -p ${BOOTFS_MNT}
-mount ${BOOTFS_PART} ${BOOTFS_MNT}
+mount -v ${BOOTFS_PART} ${BOOTFS_MNT}
+
+MOUNT_EXITCODE=$?
+# check if mount failed
+if [ ${MOUNT_EXITCODE} != 0 ] ; then
+  echo ""
+  echo "mount /dev/p1 /mnt/rootfs/boot/efi Operation failed."
+  exit 1
+fi
 
 # Update fsid in systemd-boot configuration
 sed -i "s/$ROOTFS_BLKID_OLD/$ROOTFS_BLKID_NEW/g" $BOOTFS_MNT/loader/entries/*.conf
