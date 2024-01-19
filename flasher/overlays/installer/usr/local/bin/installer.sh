@@ -128,7 +128,9 @@ MOUNT_EXITCODE=$?
 if [ ${MOUNT_EXITCODE} != 0 ] ; then
   echo ""
   echo "mount /dev/p2 /mnt/rootfs Operation failed."
-  exit 1
+  echo "You can fix or debug mount failure in bash"
+  echo "Exiting bash will continue with installation.."
+  bash
 fi
 
 
@@ -142,7 +144,9 @@ MOUNT_EXITCODE=$?
 if [ ${MOUNT_EXITCODE} != 0 ] ; then
   echo ""
   echo "mount /dev/p1 /mnt/rootfs/boot/efi Operation failed."
-  exit 1
+  echo "You can fix or debug mount failure in bash"
+  echo "Exiting bash will continue with installation.."
+  bash
 fi
 
 # Update fsid in systemd-boot configuration
