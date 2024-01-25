@@ -103,9 +103,8 @@ if [ ${BMAP_EXITCODE} != 0 ] ; then
 fi
 sync
 
-# wait for target device to ready
-sleep 10
-udevadm trigger --settle "${CHOICE}"
+# sync partitions information
+blockdev --rereadpt  "${CHOICE}"
 
 BOOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "1p")
 ROOTFS_PART_NO=2
@@ -183,7 +182,7 @@ CHOICES+=("pivot" "Boot to installed image")
 # show the dialog
 POST_CHOICE=$(dialog \
   --clear \
-  --backtitle "resctl-demo installer" \
+  --backtitle "Installation complete" \
   --title "Boot to installed image or shutdown" \
   --menu "" \
   0 0 \
