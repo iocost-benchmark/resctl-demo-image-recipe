@@ -101,10 +101,24 @@ if [ ${BMAP_EXITCODE} != 0 ] ; then
   read -p "Press return to shutdown your computer..."
   shutdown -h now
 fi
+sync
 
-ROOTFS_PART_NO=2
+# wait for target device to ready
+sleep 10
+udevadm trigger --settle "${CHOICE}"
+
 BOOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "1p")
+ROOTFS_PART_NO=2
 ROOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "${ROOTFS_PART_NO}p")
+
+if [ -z "${BOOTFS_PART}" ]; then
+  echo "No boot partition found on target device: ${CHOICE}"
+  bash
+fi
+if [ -z "${ROOTFS_PART}" ]; then
+  echo "No rootfs partition found on target device: ${CHOICE}"
+  bash
+fi
 
 # Regenerate btrfs fsid
 echo "Regenerating rootfs Filesystem UUID"
@@ -122,30 +136,23 @@ echo "New blkid $ROOTFS_BLKID_NEW"
 ROOTFS_MNT="/mnt/rootfs"
 mkdir -p ${ROOTFS_MNT}
 mount -v ${ROOTFS_PART} ${ROOTFS_MNT}
-
 MOUNT_EXITCODE=$?
 # check if mount failed
 if [ ${MOUNT_EXITCODE} != 0 ] ; then
   echo ""
-  echo "mount /dev/p2 /mnt/rootfs Operation failed."
-  echo "You can fix or debug mount failure in bash"
-  echo "Exiting bash will continue with installation.."
+  echo "mount ${ROOTFS_PART} ${ROOTFS_MNT} Operation failed."
   bash
 fi
-
 
 # Mount boot
 BOOTFS_MNT="${ROOTFS_MNT}/boot/efi"
 mkdir -p ${BOOTFS_MNT}
 mount -v ${BOOTFS_PART} ${BOOTFS_MNT}
-
 MOUNT_EXITCODE=$?
 # check if mount failed
 if [ ${MOUNT_EXITCODE} != 0 ] ; then
   echo ""
-  echo "mount /dev/p1 /mnt/rootfs/boot/efi Operation failed."
-  echo "You can fix or debug mount failure in bash"
-  echo "Exiting bash will continue with installation.."
+  echo "mount ${BOOTFS_PART} ${BOOTFS_MNT} Operation failed."
   bash
 fi
 
@@ -166,11 +173,14 @@ sync
 # complete
 echo "Installation complete."
 
+## Prompt user to either boot on installed image or shutdown
+
 declare -a CHOICES
 CHOICES=()
 CHOICES+=("shutdown" "Shutdown the system")
 CHOICES+=("pivot" "Boot to installed image")
 
+# show the dialog
 POST_CHOICE=$(dialog \
   --clear \
   --backtitle "resctl-demo installer" \
@@ -200,10 +210,12 @@ if [[ ${POST_CHOICE} == "pivot" ]]; then
     fi
   done <<< $(cat ${BOOTFS_MNT}/loader/entries/*.conf)
 
-  echo "version: $IMAGE_VERSION"
-  echo "kexec with kernel:$pivot_kernel initrd:$pivot_initrd cmdline:$pivot_cmdline"
+  echo "Boot into installed image............"
 
-  kexec  -l "$pivot_kernel" --initrd="$pivot_initrd" --command-line="$pivot_cmdline"
+  echo "- version: $IMAGE_VERSION"
+  echo "- kexec with kernel:$pivot_kernel initrd:$pivot_initrd cmdline:$pivot_cmdline"
+
+  kexec  -l "${pivot_kernel}" --initrd="${pivot_initrd}" --command-line="${pivot_cmdline}"
   if [ $? -eq 0 ]; then
     kexec -e
   else
