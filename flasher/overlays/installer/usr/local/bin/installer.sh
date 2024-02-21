@@ -103,17 +103,31 @@ if [ ${BMAP_EXITCODE} != 0 ] ; then
 fi
 sync
 
-# sync partitions information
-blockdev --rereadpt  "${CHOICE}"
-
-BOOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "1p")
-ROOTFS_PART_NO=2
-ROOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "${ROOTFS_PART_NO}p")
+# Wait until target device partitions information is ready.
+BOOTFS_PART=
+WAIT_COUNTER=10 # randomly chosen
+while (( WAIT_COUNTER > 0 )); do
+  # sync partitions information
+  blockdev --rereadpt  "${CHOICE}"
+  BOOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "1p")
+  if [ -z "${BOOTFS_PART}" ]; then
+    sleep 2
+    (( WAIT_COUNTER-- ))
+  else
+    break;
+  fi
+done
 
 if [ -z "${BOOTFS_PART}" ]; then
   echo "No boot partition found on target device: ${CHOICE}"
+  echo "> Listing parition information:"
+  lsblk --fs "${CHOICE}"
   bash
 fi
+
+ROOTFS_PART_NO=2
+ROOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "${ROOTFS_PART_NO}p")
+
 if [ -z "${ROOTFS_PART}" ]; then
   echo "No rootfs partition found on target device: ${CHOICE}"
   bash
