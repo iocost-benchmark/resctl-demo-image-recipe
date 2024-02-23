@@ -190,8 +190,8 @@ echo "Installation complete."
 
 declare -a CHOICES
 CHOICES=()
-CHOICES+=("shutdown" "Shutdown the system")
 CHOICES+=("pivot" "Boot to installed image")
+CHOICES+=("shutdown" "Shutdown the system")
 
 # show the dialog
 POST_CHOICE=$(dialog \
