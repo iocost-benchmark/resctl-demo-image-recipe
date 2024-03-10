@@ -103,12 +103,20 @@ if [ ${BMAP_EXITCODE} != 0 ] ; then
 fi
 sync
 
+echo "Finished copying image to target."
+echo ""
+echo "Start post install update to image."
+
 # Wait until target device partitions information is ready.
 BOOTFS_PART=
 WAIT_COUNTER=10 # randomly chosen
 while (( WAIT_COUNTER > 0 )); do
   # sync partitions information
   blockdev --rereadpt  "${CHOICE}"
+  # Try some more command to make host fully aware of target partitions.
+  partprobe "${CHOICE}"
+  udevadm settle
+
   BOOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "1p")
   if [ -z "${BOOTFS_PART}" ]; then
     sleep 2
