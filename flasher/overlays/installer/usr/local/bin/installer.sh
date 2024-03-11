@@ -129,7 +129,9 @@ done
 if [ -z "${BOOTFS_PART}" ]; then
   echo "No boot partition found on target device: ${CHOICE}"
   echo "> Listing parition information:"
-  lsblk --fs "${CHOICE}"
+  sfdisk -d ${CHOICE}
+  # dump parititon table sector(i.e first) for debugging purpose.
+  hd ${CHOICE} -n 512 -s 0x0 > ${FLASHER_STORAGE_MNT}/parition_dump
   bash
 fi
 
