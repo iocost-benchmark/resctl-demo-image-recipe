@@ -37,6 +37,7 @@ actions:
       - systemd-boot
       - kexec-tools
       - systemd-boot-efi
+      - bsdextrautils # for hd binary
 
   - action: apt
     description: Additional debug packages

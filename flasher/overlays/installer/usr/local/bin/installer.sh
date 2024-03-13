@@ -129,9 +129,16 @@ done
 if [ -z "${BOOTFS_PART}" ]; then
   echo "No boot partition found on target device: ${CHOICE}"
   echo "> Listing parition information:"
+
+  # Generate debugging info.
+  FLASHER_STORAGE_RESULTS=/mnt/results
+  mkdir -p ${FLASHER_STORAGE_RESULTS}
+  mount PARTLABEL=results ${FLASHER_STORAGE_RESULTS}
   sfdisk -d ${CHOICE}
   # dump parititon table sector(i.e first) for debugging purpose.
-  hd ${CHOICE} -n 512 -s 0x0 > ${FLASHER_STORAGE_MNT}/parition_dump
+  hd ${CHOICE} -n 512 -s 0x0 > ${FLASHER_STORAGE_RESULTS}/parition_dump
+  # dump dmesg log.
+  dmesg > ${FLASHER_STORAGE_RESULTS}/dmesg_log
   bash
 fi
 
