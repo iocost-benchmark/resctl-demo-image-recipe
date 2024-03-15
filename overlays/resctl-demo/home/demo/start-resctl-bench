@@ -100,8 +100,7 @@ sudo touch ${LOCKFILE}
       sudo sh -c "journalctl -b > $LOG_DIR/resctl_journal.log"
     fi
   done
-  sudo tar -zcf resctl-benchmark.tar.gz $RD_DIR
-  sudo cp resctl-benchmark.tar.gz $LOG_DIR
+  sudo resctl-bench -r "${RESULT_JSON}" pack
 ) &
 
 wait
