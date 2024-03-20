@@ -78,18 +78,28 @@ sudo touch ${LOCKFILE}
   sudo sh -c "echo ${BASHPID} > ${LOCKFILE}"
 
 # Create benchmark using resctl-bench & convert results to PDF/TXT
+  SUCCESS=false
   for ((i = 0; i < 10; i++)); do
     if sudo --preserve-env resctl-bench -r "$RESULT_JSON" --logfile=$LOG_FILE run iocost-tune; then
+      SUCCESS=true
       break
     fi
   done
 
   sudo rm -rf $LOCKFILE
-  sudo resctl-bench -r "$RESULT_JSON" format iocost-tune:pdf=$RESULT_PDF >/dev/null
-  sudo resctl-bench -r "$RESULT_JSON" format | sudo tee "$RESULT_SUMMARY" >/dev/null
+  if [[ "${SUCCESS}" == "true" ]]; then
+    sudo resctl-bench -r "$RESULT_JSON" format iocost-tune:pdf=$RESULT_PDF >/dev/null
+    sudo resctl-bench -r "$RESULT_JSON" format | sudo tee "$RESULT_SUMMARY" >/dev/null
 
-  echo "resctl-bench finshed successfully!"
-  echo "Results saved to USB stick as $MODEL/$FILENAME"
+    echo "resctl-bench finshed successfully!"
+    echo "Results saved to USB stick as $MODEL/$FILENAME"
+  else
+    sudo resctl-bench -r "${RESULT_JSON}" pack
+    sudo cp "${RESULT_JSON}" $LOG_DIR/
+    echo "resctl-bench failed to complete!"
+    echo "Intermediate Records are packed to USB stick as $MODEL/$FILENAME"
+    echo "Also, system logs are available at $LOG_DIR"
+  fi
 ) &
 
 (
@@ -100,7 +110,6 @@ sudo touch ${LOCKFILE}
       sudo sh -c "journalctl -b > $LOG_DIR/resctl_journal.log"
     fi
   done
-  sudo resctl-bench -r "${RESULT_JSON}" pack
 ) &
 
 wait
