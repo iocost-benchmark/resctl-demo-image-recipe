@@ -87,6 +87,9 @@ echo "Installing resctl-demo to ${CHOICE}; do not turn your computer off."
 echo "You will be prompted to restart your computer after installation."
 echo ""
 
+#Remove existing MBR
+dd if=/dev/zero of=${CHOICE} bs=512 count=1
+
 bmaptool \
   copy \
   ${FLASHER_STORAGE_MNT}/resctl-demo-image.img.gz \
@@ -136,7 +139,7 @@ if [ -z "${BOOTFS_PART}" ]; then
   mount PARTLABEL=results ${FLASHER_STORAGE_RESULTS}
   sfdisk -d ${CHOICE}
   # dump parititon table sector(i.e first) for debugging purpose.
-  hd ${CHOICE} -n 512 -s 0x0 > ${FLASHER_STORAGE_RESULTS}/parition_dump
+  hd ${CHOICE} -n 512KB -s 0x0 > ${FLASHER_STORAGE_RESULTS}/parition_dump
   # dump dmesg log.
   dmesg > ${FLASHER_STORAGE_RESULTS}/dmesg_log
   bash
