@@ -28,25 +28,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y debian-archive-keyring \
-                                  debos \
-                                  libostree-dev \
-                                  qemu-utils \
-                                  pigz
-
-      - name: Setup go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '>=1.18.0'
-
-      - name: Install debos from source
-        run: |
-          go install github.com/go-debos/debos/cmd/debos@main
-          sudo -H ln -sf $HOME/go/bin/debos /usr/bin/debos
-
       - name: Download kernel
         uses: dawidd6/action-download-artifact@v6
         with:
@@ -73,18 +54,44 @@ jobs:
 
       # ospack
       - name: Build ospack
-        run: sudo debos --disable-fakemachine --artifactdir=out
-             --template-var=variant:${{ matrix.variant }}
-             --template-var=version:"${{ steps.version.outputs.version }}"
-             --template-var="resctl_demo_src:${{ github.event.inputs.resctl_demo_src }}"
-             --template-var=kernel_branch:debs
-             --scratchsize=16G
-             resctl-demo-ospack.yaml
+        run:
+          docker run
+          --cgroupns=private
+          -v $(pwd):/recipes
+          -w /recipes
+          --tmpfs /scratch:exec
+          --tmpfs /run
+          --privileged
+          -e TMP=/scratch
+          -e SYSTEMD_NSPAWN_UNIFIED_HIERARCHY=1
+          --entrypoint ""
+          ghcr.io/go-debos/debos:main
+          debos --artifactdir=out
+                --template-var=variant:${{ matrix.variant }}
+                --template-var=version:"${{ steps.version.outputs.version }}"
+                --template-var="resctl_demo_src:${{ github.event.inputs.resctl_demo_src }}"
+                --template-var=kernel_branch:debs
+                --scratchsize=16G
+                resctl-demo-ospack.yaml
 
       # efi image
       - name: Build ${{ matrix.variant }}-image-efiboot
-        run: |
-          sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} --template-var=version:"${{ steps.version.outputs.version }}" resctl-demo-image-efiboot.yaml
+        run:
+          docker run
+          --cgroupns=private
+          -v $(pwd):/recipes
+          -w /recipes
+          --tmpfs /scratch:exec
+          --tmpfs /run
+          --privileged
+          -e TMP=/scratch
+          -e SYSTEMD_NSPAWN_UNIFIED_HIERARCHY=1
+          --entrypoint ""
+          ghcr.io/go-debos/debos:main
+          debos --artifactdir=out
+                --template-var=variant:${{ matrix.variant }}
+                --template-var=version:"${{ steps.version.outputs.version }}"
+                resctl-demo-image-efiboot.yaml
 
       - name: Publish ${{ matrix.variant }}-image-efiboot
         uses: actions/upload-artifact@v4
@@ -100,8 +107,22 @@ jobs:
 
       # efi flasher
       - name: Build ${{ matrix.variant }}-flasher-efiboot
-        run: |
-          sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} --template-var=version:"${{ steps.version.outputs.version }}" resctl-demo-flasher-efiboot.yaml
+        run:
+          docker run
+          --cgroupns=private
+          -v $(pwd):/recipes
+          -w /recipes
+          --tmpfs /scratch:exec
+          --tmpfs /run
+          --privileged
+          -e TMP=/scratch
+          -e SYSTEMD_NSPAWN_UNIFIED_HIERARCHY=1
+          --entrypoint ""
+          ghcr.io/go-debos/debos:main
+          debos --artifactdir=out
+                --template-var=variant:${{ matrix.variant }}
+                --template-var=version:"${{ steps.version.outputs.version }}"
+                resctl-demo-flasher-efiboot.yaml
 
       - name: Publish ${{ matrix.variant }}-flasher-efiboot
         uses: actions/upload-artifact@v4
@@ -118,7 +139,22 @@ jobs:
       # legacyboot image
       - name: Build ${{ matrix.variant }}-image-legacyboot
         if: matrix.variant == 'resctl-demo'
-        run: sudo debos --disable-fakemachine --artifactdir=out --template-var=variant:${{ matrix.variant }} --template-var=version:"${{ steps.version.outputs.version }}" resctl-demo-image-legacyboot.yaml
+        run:
+          docker run
+          --cgroupns=private
+          -v $(pwd):/recipes
+          -w /recipes
+          --tmpfs /scratch:exec
+          --tmpfs /run
+          --privileged
+          -e TMP=/scratch
+          -e SYSTEMD_NSPAWN_UNIFIED_HIERARCHY=1
+          --entrypoint ""
+          ghcr.io/go-debos/debos:main
+          debos --artifactdir=out
+                --template-var=variant:${{ matrix.variant }}
+                --template-var=version:"${{ steps.version.outputs.version }}"
+                resctl-demo-image-legacyboot.yaml
 
       - name: Publish ${{ matrix.variant }}-image-legacyboot
         if: matrix.variant == 'resctl-demo'
