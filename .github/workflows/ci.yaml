@@ -105,6 +105,13 @@ jobs:
           if-no-files-found: error
 
 
+      - name: Cleanup intermediate images
+        run: |
+          # Make some space
+          rm out/${{ matrix.variant }}-image-efiboot.img.bmap
+          rm out/${{ matrix.variant }}-image-efiboot.img.gz.sha256
+          rm out/${{ matrix.variant }}-image-efiboot.img.gz
+
       # efi flasher
       - name: Build ${{ matrix.variant }}-flasher-efiboot
         run:

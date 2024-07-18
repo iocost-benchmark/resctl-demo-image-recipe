@@ -29,15 +29,26 @@ actions:
       - udev
       - linux-image-amd64
       - bmap-tools
+      - zstd
       - efibootmgr
       - parted
       - fdisk
       - btrfs-progs
+      - dosfstools
       - dialog
       - systemd-boot
       - kexec-tools
       - systemd-boot-efi
       - bsdextrautils # for hd binary
+      - pv
+
+  - action: run
+    description: Upgrade systemd
+    chroot: true
+    command: |
+      echo "deb http://deb.debian.org/debian {{ $suite }}-backports main" > /etc/apt/sources.list.d/backports.list
+      apt-get update
+      apt-get install --yes -t {{ $suite }}-backports systemd
 
   - action: apt
     description: Additional debug packages
@@ -45,6 +56,7 @@ actions:
     packages:
       - kmod
       - busybox
+      - vim-tiny
 
   - action: run
     description: Add version metadata to /etc/os-release
@@ -82,6 +94,7 @@ actions:
     mountpoints:
       - mountpoint: /
         partition: EFI
+        buildtime: true
       - mountpoint: /mnt
         partition: flasher-storage
     partitions:
@@ -105,9 +118,8 @@ actions:
   - action: run
     description: Install images for flashing
     chroot: false
-    command: cp ${ARTIFACTDIR}/{{ $flash_image }}.img.gz ${IMAGEMNTDIR}/mnt/resctl-demo-image.img.gz &&
-             cp ${ARTIFACTDIR}/{{ $flash_image }}.img.bmap ${IMAGEMNTDIR}/mnt/resctl-demo-image.img.bmap &&
-             cp ${ARTIFACTDIR}/{{ $flash_image }}.img.gz.sha256 ${IMAGEMNTDIR}/mnt/resctl-demo-image.img.gz.sha256
+    command: |
+      cp ${ARTIFACTDIR}/{{ $flash_image }}.tar.gz ${IMAGEMNTDIR}/mnt/resctl-demo-image.tar.gz
 
   - action: run
     description: Setup flasher

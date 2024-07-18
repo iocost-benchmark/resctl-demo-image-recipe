@@ -27,6 +27,7 @@ actions:
           - x-systemd.growfs
       - mountpoint: /boot/efi
         partition: EFI
+        buildtime: true
     partitions:
       - name: EFI
         partlabel: efi
@@ -110,6 +111,10 @@ actions:
     description: Examine disk size
     chroot: true
     command: df -h / /boot/efi
+
+  - action: pack
+    description: Pack image contents into tarball (for installer)
+    file: {{ $image }}.tar.gz
 
 {{ if eq $pack "true" }}
   - action: run

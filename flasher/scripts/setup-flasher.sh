@@ -44,6 +44,9 @@ EOF
 # Copy kernel
 cp ${ROOTDIR}/boot/vmlinuz* linux
 
+# Remove machine-id to generate random seed on each boot
+rm ${ROOTDIR}/etc/machine-id
+
 # Create initramfs from container contents
 cd ${ROOTDIR}
 rm -rf boot
