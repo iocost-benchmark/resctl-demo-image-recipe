@@ -77,7 +77,7 @@ while : ; do
   fi
 done
 
-# install the image
+# Install the image to the target disk
 echo "-----------"
 echo "resctl-demo"
 echo "version: $IMAGE_VERSION"
@@ -87,83 +87,23 @@ echo "Installing resctl-demo to ${CHOICE}; do not turn your computer off."
 echo "You will be prompted to restart your computer after installation."
 echo ""
 
-#Remove existing MBR
-dd if=/dev/zero of=${CHOICE} bs=512 count=1
-
-bmaptool \
-  copy \
-  ${FLASHER_STORAGE_MNT}/resctl-demo-image.img.gz \
+# Create the partition layout.
+# (systemd >=254 is required; otherwise sector size is not read from device & fixed at 512)
+systemd-repart \
+  --dry-run=no \
+  --empty=force \
+  --discard=no \
+  --pretty=yes \
   ${CHOICE}
-BMAP_EXITCODE=$?
 
-# check if install failed
-if [ ${BMAP_EXITCODE} != 0 ] ; then
-  echo ""
-  echo ""
-  echo "Operation failed. See error message above."
-  read -p "Press return to shutdown your computer..."
-  shutdown -h now
-fi
-sync
-
-echo "Finished copying image to target."
-echo ""
-echo "Start post install update to image."
-
-# Wait until target device partitions information is ready.
-BOOTFS_PART=
-WAIT_COUNTER=10 # randomly chosen
-while (( WAIT_COUNTER > 0 )); do
-  # sync partitions information
-  blockdev --rereadpt  "${CHOICE}"
-  # Try some more command to make host fully aware of target partitions.
-  partprobe "${CHOICE}"
-  udevadm settle
-
-  BOOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "1p")
-  if [ -z "${BOOTFS_PART}" ]; then
-    sleep 2
-    (( WAIT_COUNTER-- ))
-  else
-    break;
-  fi
-done
-
-if [ -z "${BOOTFS_PART}" ]; then
-  echo "No boot partition found on target device: ${CHOICE}"
-  echo "> Listing parition information:"
-
-  # Generate debugging info.
-  FLASHER_STORAGE_RESULTS=/mnt/results
-  mkdir -p ${FLASHER_STORAGE_RESULTS}
-  mount PARTLABEL=results ${FLASHER_STORAGE_RESULTS}
-  sfdisk -d ${CHOICE}
-  # dump parititon table sector(i.e first) for debugging purpose.
-  hd ${CHOICE} -n 512KB -s 0x0 > ${FLASHER_STORAGE_RESULTS}/parition_dump
-  # dump dmesg log.
-  dmesg > ${FLASHER_STORAGE_RESULTS}/dmesg_log
-  bash
-fi
-
-ROOTFS_PART_NO=2
-ROOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "${ROOTFS_PART_NO}p")
-
-if [ -z "${ROOTFS_PART}" ]; then
-  echo "No rootfs partition found on target device: ${CHOICE}"
-  bash
-fi
-
-# Regenerate btrfs fsid
-echo "Regenerating rootfs Filesystem UUID"
-ROOTFS_BLKID_OLD=$(blkid -s UUID -o value ${ROOTFS_PART})
-echo "Old blkid $ROOTFS_BLKID_OLD"
-btrfstune -m ${ROOTFS_PART}
-sync
+# Wait for partition table to settle.
 sleep 10
 
-# Get the new fsid
-ROOTFS_BLKID_NEW=$(blkid -s UUID -o value ${ROOTFS_PART})
-echo "New blkid $ROOTFS_BLKID_NEW"
+# Determine the full path to the newly created partitions.
+BOOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "1p")
+ROOTFS_PART=$(lsblk -n -o PATH | grep "${CHOICE}" | grep -Fvx "${CHOICE}" | sed -n "2p")
+echo "Boot partition: $BOOTFS_PART"
+echo "Root partition: $ROOTFS_PART"
 
 # Mount rootfs
 ROOTFS_MNT="/mnt/rootfs"
@@ -189,35 +129,47 @@ if [ ${MOUNT_EXITCODE} != 0 ] ; then
   bash
 fi
 
-# Update fsid in systemd-boot configuration
-sed -i "s/$ROOTFS_BLKID_OLD/$ROOTFS_BLKID_NEW/g" $BOOTFS_MNT/loader/entries/*.conf
+# Extract system tarball
+echo ""
+echo "Installing system... please wait..."
+pv ${FLASHER_STORAGE_MNT}/resctl-demo-image.tar.gz | tar -zx --directory ${ROOTFS_MNT} -f -
 
-# Update fsid in /etc/fstab
-sed -i "s/$ROOTFS_BLKID_OLD/$ROOTFS_BLKID_NEW/g" $ROOTFS_MNT/etc/fstab
+# Various files have been populated with the filesystem UUID generated at
+# build-time. Update them to match the newly-created filesystem UUID.
 
-# Fix /etc/kernel/cmdline
-sed -i "s/$ROOTFS_BLKID_OLD/$ROOTFS_BLKID_NEW/g" $ROOTFS_MNT/etc/kernel/cmdline
+# Read rootfs filesystem uuid
+ROOTFS_UUID=$(blkid -s UUID -o value ${ROOTFS_PART})
+ROOTFS_UUID_OLD=$(grep -oP 'UUID=\K[^\s]+' $ROOTFS_MNT/etc/fstab | head -n1)
+echo "Old root filesystem UUID: $ROOTFS_UUID_OLD"
+echo "Root filesystem UUID: $ROOTFS_UUID"
+
+# Update fs uuid in systemd-boot configuration
+sed -i "s/$ROOTFS_UUID_OLD/$ROOTFS_UUID/g" $BOOTFS_MNT/loader/entries/*.conf
+
+# Update fs uuid in /etc/fstab
+sed -i "s/$ROOTFS_UUID_OLD/$ROOTFS_UUID/g" $ROOTFS_MNT/etc/fstab
+
+# Update fs uuid /etc/kernel/cmdline
+sed -i "s/$ROOTFS_UUID_OLD/$ROOTFS_UUID/g" $ROOTFS_MNT/etc/kernel/cmdline
 
 # Install lockfile inside rootfs to disable pivot on first boot
 touch ${ROOTFS_MNT}/etc/resctl-demo/PIVOT_COMPLETE
 
-sync
-
-# complete
 echo "Installation complete."
+sleep 10
 
-## Prompt user to either boot on installed image or shutdown
+## Prompt user to either pivot to installed image or shutdown
 
 declare -a CHOICES
 CHOICES=()
-CHOICES+=("pivot" "Boot to installed image")
+CHOICES+=("pivot" "Pivot to installed image")
 CHOICES+=("shutdown" "Shutdown the system")
 
 # show the dialog
 POST_CHOICE=$(dialog \
   --clear \
   --backtitle "Installation complete" \
-  --title "Boot to installed image or shutdown" \
+  --title "Pivot to installed image or shutdown" \
   --menu "" \
   0 0 \
   10 \
@@ -243,10 +195,11 @@ if [[ ${POST_CHOICE} == "pivot" ]]; then
     fi
   done <<< $(cat ${BOOTFS_MNT}/loader/entries/*.conf)
 
-  echo "Boot into installed image............"
-
+  echo "Pivoting into installed image............"
   echo "- version: $IMAGE_VERSION"
-  echo "- kexec with kernel:$pivot_kernel initrd:$pivot_initrd cmdline:$pivot_cmdline"
+  echo "- kernel: $pivot_kernel"
+  echo "- initrd: $pivot_initrd"
+  echo "- cmdline: $pivot_cmdline"
 
   kexec  -l "${pivot_kernel}" --initrd="${pivot_initrd}" --command-line="${pivot_cmdline}"
   if [ $? -eq 0 ]; then
