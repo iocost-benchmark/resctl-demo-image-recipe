@@ -57,6 +57,12 @@ actions:
     file: {{ $ospack }}.tar.gz
 
   - action: apt
+    description: Install kernel
+    packages:
+      - linux-image-amd64
+      - linux-headers-amd64
+
+  - action: apt
     description: Install useful packages for baremetal
     packages:
       - network-manager

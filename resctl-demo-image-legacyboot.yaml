@@ -44,6 +44,12 @@ actions:
   - action: unpack
     file: {{ $ospack }}.tar.gz
 
+  - action: apt
+    description: Install kernel
+    packages:
+      - linux-image-amd64
+      - linux-headers-amd64
+
   - action: overlay
     description: Copy {{ $ospack }}.tar.gz into image
     source: out/{{ $ospack }}.tar.gz

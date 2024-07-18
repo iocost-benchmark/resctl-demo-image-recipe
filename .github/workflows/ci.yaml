@@ -28,20 +28,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download kernel
-        uses: dawidd6/action-download-artifact@v6
-        with:
-          repo: iocost-benchmark/resctl-demo-linux
-          branch: resctl-demo
-          workflow: ci.yaml
-          workflow_conclusion: success
-          path: debs/
-
-      - name: Move kernel into the correct place
-        run: |
-          mv debs/resctl-demo-kernel/* debs/
-          find debs
-
       - name: Create output directory
         run: mkdir out
 
@@ -70,7 +56,6 @@ jobs:
                 --template-var=variant:${{ matrix.variant }}
                 --template-var=version:"${{ steps.version.outputs.version }}"
                 --template-var="resctl_demo_src:${{ github.event.inputs.resctl_demo_src }}"
-                --template-var=kernel_branch:debs
                 --scratchsize=16G
                 resctl-demo-ospack.yaml
 
