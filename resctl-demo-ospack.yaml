@@ -2,7 +2,6 @@
 {{ $ospack := or .ospack (printf "%s-ospack" $variant) }}
 {{ $mirror := or .mirror "https://deb.debian.org/debian" }}
 {{ $suite := or .suite "bookworm" }}
-{{ $kernel_branch := or .kernel_branch "resctl-demo" }}
 {{ $resctl_demo_src := or .resctl_demo_src "crates.io" }}
 {{ $version := or .version "local" }}
 
@@ -41,47 +40,11 @@ actions:
     command: |
       echo "IMAGE_VERSION={{ $version }}" >> ${ROOTDIR}/etc/os-release
 
-{{ if eq $kernel_branch "debs" }}
-  # Use the kernel package from the filesystem
-  - action: overlay
-    description: Copy kernel package
-    source: debs
-    destination: debs
-{{ else }}
-  # Download the kernel package from GitHub
-  - action: download
-    url: https://nightly.link/iocost-benchmark/resctl-demo-linux/workflows/ci.yaml/{{ $kernel_branch }}/resctl-demo-kernel.zip
-    name: kernel
-    unpack: true
-    compression: zip
-
-  - action: overlay
-    description: Copy kernel package
-    origin: kernel
-    destination: debs
-{{ end }}
-
-  - action: run
-    description: Inspect kernel packages
-    command: ls -la ${ROOTDIR}/debs
-
-  - action: run
-    description: Install kernel packages
-    chroot: true
-    command: rm debs/*dbg*.deb || true;
-             apt-get install --yes --allow-downgrades ./debs/*.deb &&
-             rm -rf /debs
-
   - action: apt
     description: Install bootloader packages
     packages:
       - systemd-boot
       - systemd-boot-efi
-
-  - action: run
-    description: Mark custom packages as hold
-    chroot: true
-    command: apt-mark hold linux*
 
   - action: apt
     description: Networking packages
