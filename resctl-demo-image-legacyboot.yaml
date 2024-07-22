@@ -4,6 +4,7 @@
 {{ $imagesize := or .imagesize "32GB" }}
 {{ $cmdline := or .cmdline "root=LABEL=system console=tty0 console=ttyS0,115200n1 rootwait fsck.mode=auto fsck.repair=yes systemd.unified_cgroup_hierarchy=1 mem=16G" }}
 {{ $pack := or .pack "true" }}
+{{ $suite := or .suite "bookworm" }}
 {{ $version := or .version "local" }}
 
 architecture: amd64
@@ -49,6 +50,14 @@ actions:
     packages:
       - linux-image-amd64
       - linux-headers-amd64
+
+  - action: run
+    description: Upgrade kernel to backports
+    chroot: true
+    command: |
+      echo "deb http://deb.debian.org/debian {{ $suite }}-backports main" > /etc/apt/sources.list.d/backports.list
+      apt-get update
+      apt-get install --yes -t {{ $suite }}-backports linux-image-amd64
 
   - action: overlay
     description: Copy {{ $ospack }}.tar.gz into image
