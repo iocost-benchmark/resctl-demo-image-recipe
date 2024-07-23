@@ -2,9 +2,9 @@ name: Build resctl-demo images
 on:
   pull_request:
   push:
-  # Build at 04:00am every Monday
+  # Every Monday 01:00 UTC
   schedule:
-    - cron: "0 4 * * 1"
+    - cron: "0 1 * * 1"
   workflow_dispatch:
     inputs:
       resctl_demo_src:
