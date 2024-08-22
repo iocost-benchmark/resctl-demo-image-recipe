@@ -89,13 +89,13 @@ jobs:
             out/version.txt
           if-no-files-found: error
 
-
-      - name: Cleanup intermediate images
+      - name: Cleanup working dir builds
         run: |
-          # Make some space
+          # Remove files already published as build artifacts
           rm out/${{ matrix.variant }}-image-efiboot.img.bmap
           rm out/${{ matrix.variant }}-image-efiboot.img.gz.sha256
           rm out/${{ matrix.variant }}-image-efiboot.img.gz
+          rm -f out/version.txt
 
       # efi flasher
       - name: Build ${{ matrix.variant }}-flasher-efiboot
@@ -127,6 +127,13 @@ jobs:
             out/version.txt
           if-no-files-found: error
 
+      - name: Cleanup working dir builds
+        run: |
+          # Remove files already published as build artifacts
+          rm out/${{ matrix.variant }}-flasher-efiboot.img.bmap
+          rm out/${{ matrix.variant }}-flasher-efiboot.img.gz.sha256
+          rm out/${{ matrix.variant }}-flasher-efiboot.img.gz
+          rm -f out/version.txt
 
       # legacyboot image
       - name: Build ${{ matrix.variant }}-image-legacyboot
@@ -159,6 +166,15 @@ jobs:
             out/${{ matrix.variant }}-image-legacyboot.img.gz
             out/version.txt
           if-no-files-found: error
+
+      - name: Cleanup working dir builds
+        if: matrix.variant == 'resctl-demo'
+        run: |
+          # Remove files already published as build artifacts
+          rm out/${{ matrix.variant }}-image-legacyboot.img.bmap
+          rm out/${{ matrix.variant }}-image-legacyboot.img.gz.sha256
+          rm out/${{ matrix.variant }}-image-legacyboot.img.gz
+          rm -f out/version.txt
 
   # Keep workflow alive
   # See https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration#disabling-and-enabling-workflows
