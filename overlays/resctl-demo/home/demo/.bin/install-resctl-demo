@@ -11,6 +11,10 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- $RUSTUP_ARG
 source $HOME/.cargo/env
 echo "source \$HOME/.cargo/env" >> $HOME/.bashrc
 
+# Fixup for resctl-demo v2.2.5: uses time v0.3.34, which fails to build
+# on rust >= 1.8.0
+rustup default 1.79.0
+
 # Append arguments to cargo install
 CARGO_ARGS=""
 if [ "$RESCTL_DEMO_SRC" = "git HEAD" ] ; then
