@@ -63,14 +63,6 @@ actions:
       - linux-image-amd64
       - linux-headers-amd64
 
-  - action: run
-    description: Upgrade kernel to backports
-    chroot: true
-    command: |
-      echo "deb http://deb.debian.org/debian {{ $suite }}-backports main" > /etc/apt/sources.list.d/backports.list
-      apt-get update
-      apt-get install --yes -t {{ $suite }}-backports linux-image-amd64
-
   - action: apt
     description: Install useful packages for baremetal
     packages:
