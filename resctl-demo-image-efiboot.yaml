@@ -57,11 +57,8 @@ actions:
   - action: unpack
     file: {{ $ospack }}.tar.gz
 
-  - action: apt
-    description: Install kernel
-    packages:
-      - linux-image-amd64
-      - linux-headers-amd64
+  - action: recipe
+    recipe: kernel.yaml
 
   - action: apt
     description: Install useful packages for baremetal
