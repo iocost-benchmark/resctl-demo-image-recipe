@@ -233,6 +233,16 @@ actions:
     chroot: true
     command: chown -R demo:demo /home/demo
 
+  - action: overlay
+    description: "Temporary: add resctl development APT repo"
+    source: overlays/resctl-apt-repo
+
+  - action: run
+    description: "Temporary: refresh apt cache"
+    chroot: true
+    command: |
+      apt-get update
+
   - action: apt
     description: Install resctl-bench
     recommends: true
