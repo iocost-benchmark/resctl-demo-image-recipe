@@ -1,7 +1,7 @@
 {{ $variant := or .variant "resctl-demo" }}
 {{ $ospack := or .ospack (printf "%s-ospack" $variant) }}
 {{ $mirror := or .mirror "https://deb.debian.org/debian" }}
-{{ $suite := or .suite "bookworm" }}
+{{ $suite := or .suite "trixie" }}
 {{ $resctl_demo_src := or .resctl_demo_src "crates.io" }}
 {{ $version := or .version "local" }}
 
@@ -87,7 +87,10 @@ actions:
       - tmux
       - vim
       - wget
+      - systemd-userdbd
       - systemd-resolved
+      - systemd-repart
+      - systemd-timesyncd
 
   - action: apt
     description: Runtime dependencies for resctl-demo
@@ -230,11 +233,12 @@ actions:
     chroot: true
     command: chown -R demo:demo /home/demo
 
-  - action: run
-    description: Install resctl-demo
-    chroot: true
-    label: install-resctl-demo
-    command: su demo -c "/home/demo/.bin/install-resctl-demo {{ $resctl_demo_src }}"
+  - action: apt
+    description: Install resctl-bench
+    recommends: true
+    packages:
+      - resctl-bench
+      - resctl-demo
 
   - action: run
     description: Install Adobe fonts
