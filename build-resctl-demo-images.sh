@@ -5,13 +5,16 @@ IMAGE=ghcr.io/go-debos/debos:main
 
 mkdir -p out
 
+KVMGROUP=$(stat --printf="%G" /dev/kvm)
+VMGROUP=$(getent group $KVMGROUP | cut -d : -f 3)
+
 docker pull $IMAGE
 docker run \
        --rm \
        -w /recipes \
        -v $(pwd):/recipes \
        -u $(id -u):$(id -g) \
-       --group-add=$(getent group kvm | cut -d : -f 3) \
+       --group-add=$VMGROUP \
        --device /dev/kvm \
        --security-opt label=disable \
        $IMAGE \
@@ -22,7 +25,7 @@ docker run \
        -w /recipes \
        -v $(pwd):/recipes \
        -u $(id -u):$(id -g) \
-       --group-add=$(getent group kvm | cut -d : -f 3) \
+       --group-add=$VMGROUP \
        --device /dev/kvm \
        --security-opt label=disable \
        $IMAGE \
@@ -33,7 +36,7 @@ docker run \
        -w /recipes \
        -v $(pwd):/recipes \
        -u $(id -u):$(id -g) \
-       --group-add=$(getent group kvm | cut -d : -f 3) \
+       --group-add=$VMGROUP \
        --device /dev/kvm \
        --security-opt label=disable \
        $IMAGE \
@@ -44,7 +47,7 @@ docker run \
        -w /recipes \
        -v $(pwd):/recipes \
        -u $(id -u):$(id -g) \
-       --group-add=$(getent group kvm | cut -d : -f 3) \
+       --group-add=$VMGROUP \
        --device /dev/kvm \
        --security-opt label=disable \
        $IMAGE \
