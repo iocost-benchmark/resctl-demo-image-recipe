@@ -73,6 +73,7 @@ actions:
       - htop
       - bc
       - bcc
+      - console-setup
       - curl
       - fish
       - jq
