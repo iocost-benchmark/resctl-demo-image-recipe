@@ -1,0 +1,22 @@
+{{ $kernel := or .kernel "" }}
+
+architecture: amd64
+
+actions:
+{{ if eq $kernel "experimental" }}
+  - action: overlay
+    description: Prioritize experimental kernel
+    source: overlays/kernel-experimental
+
+  - action: run
+    description: Refresh apt repo
+    chroot: true
+    command: apt-get update
+{{ end }}
+
+  - action: apt
+    description: Install kernel
+    packages:
+      - linux-image-amd64
+      - linux-headers-amd64
+      - zstd

@@ -1,0 +1,5 @@
+Types: deb
+URIs: http://download.opensuse.org/repositories/home:/d4s:/resctl/Debian_Unstable/
+Suites: ./
+Signed-By: /etc/apt/keyrings/obs_d4s_resctl_key.gpg
+Trusted: yes

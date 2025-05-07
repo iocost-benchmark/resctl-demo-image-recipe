@@ -39,7 +39,7 @@ stages:
   - >
     if [ "${CI_COMMIT_BRANCH}" = "$CI_DEFAULT_BRANCH" -o "${CI_BUILD_REF_NAME}" = "${CI_COMMIT_TAG}" ] ; then
       # upload legacyboot image to AWS
-      python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/bookworm/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="out/resctl-demo-image-legacyboot.vmdk"
+      python3 aws-ec2/upload-image-aws-ec2.py --ami-name="resctl-demo/trixie/${VERSION}" --ami-description="resctl-demo version ${VERSION}" --image-file="out/resctl-demo-image-legacyboot.vmdk"
     fi
 
 buildenv:
